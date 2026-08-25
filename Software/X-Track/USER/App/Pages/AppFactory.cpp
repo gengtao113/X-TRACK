@@ -27,6 +27,12 @@
 #include "SystemInfos/SystemInfos.h"
 #include "StartUp/StartUp.h"
 
+/**
+  * @brief  按类名匹配并 new 出对应页面
+  * @param  className  标识符，如 Dialplate；#className 变成字符串 "Dialplate"
+  * @note   必须写成宏：new 的类型名在编译期拼出来，C 里就是一张函数表。
+  *         do { ... } while(0) 让宏当一条语句用，避免 if 里少写花括号出错。
+  */
 #define APP_CLASS_MATCH(className)\
 do{\
     if (strcmp(name, #className) == 0)\
@@ -35,6 +41,12 @@ do{\
     }\
 }while(0)
 
+/**
+  * @brief  按类名创建页面对象
+  * @param  name  类名字符串，与 Install 的第一个参数相同，如 "Dialplate"
+  * @note   不是应用名 "Pages/Dialplate"。新加一页：include 头文件 + 下面加一行 APP_CLASS_MATCH。
+  * @retval 新页面的 PageBase*；未登记则 nullptr
+  */
 PageBase* AppFactory::CreatePage(const char* name)
 {
     APP_CLASS_MATCH(Template);

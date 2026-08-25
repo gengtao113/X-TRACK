@@ -6,6 +6,14 @@
 
 using namespace Page;
 
+/**
+  * @brief  在页面 root 下创建表盘全部控件，并登记入场动画（不播放）
+  * @param  root  PageManager 为本页准备的全屏容器
+  * @note   C 对应 DialplateView_Create(&view, root)。只碰 LVGL，不读 GPS。
+  *         必须先 Bottom 再 Top 再按钮：按钮容器相对 bottomInfo 底边对齐。
+  *         动画只 add 到 timeline，真正 start 在 Presenter 的 onViewWillAppear。
+  * @retval None
+  */
 void DialplateView::Create(lv_obj_t* root)
 {
     BottomInfo_Create(root);
@@ -39,6 +47,11 @@ void DialplateView::Create(lv_obj_t* root)
     lv_anim_timeline_add_wrapper(ui.anim_timeline, wrapper);
 }
 
+/**
+  * @brief  释放入场动画时间线
+  * @note   控件挂在页面 root 上，由 PageManager UNLOAD 时销毁，这里只删 timeline。
+  * @retval None
+  */
 void DialplateView::Delete()
 {
     if(ui.anim_timeline)
@@ -48,6 +61,13 @@ void DialplateView::Delete()
     }
 }
 
+/**
+  * @brief  创建上半区：深灰圆角底 + 大号时速 + km/h
+  * @param  par  父对象（页面 root）
+  * @note   容器 y = -36，顶部被裁掉一截，露出圆角像状态栏下方的卡片。
+  *         初始文字 "00"，之后由 Presenter::Update 改 labelSpeed。
+  * @retval None
+  */
 void DialplateView::TopInfo_Create(lv_obj_t* par)
 {
     lv_obj_t* cont = lv_obj_create(par);
@@ -76,6 +96,12 @@ void DialplateView::TopInfo_Create(lv_obj_t* par)
     ui.topInfo.labelUint = label;
 }
 
+/**
+  * @brief  创建下半区：四组副信息横排（AVG / Time / Trip / Calorie）
+  * @param  par  父对象（页面 root）
+  * @note   flex 行排均匀分布。按钮容器会 align_to 本容器底边，故 Create 里要先调本函数。
+  * @retval None
+  */
 void DialplateView::BottomInfo_Create(lv_obj_t* par)
 {
     lv_obj_t* cont = lv_obj_create(par);
@@ -113,6 +139,14 @@ void DialplateView::BottomInfo_Create(lv_obj_t* par)
     }
 }
 
+/**
+  * @brief  创建一组副信息：上数值、下单位
+  * @param  par       父容器（bottomInfo.cont）
+  * @param  info      输出：写入 cont / lableValue / lableUnit
+  * @param  unitText  单位文字（AVG / Time / Trip / Calorie）
+  * @note   数值 Label 此处不设初始文案，由 Presenter::Update 填写。
+  * @retval None
+  */
 void DialplateView::SubInfoGrp_Create(lv_obj_t* par, SubInfo_t* info, const char* unitText)
 {
     lv_obj_t* cont = lv_obj_create(par);
@@ -141,6 +175,12 @@ void DialplateView::SubInfoGrp_Create(lv_obj_t* par, SubInfo_t* info, const char
     info->cont = cont;
 }
 
+/**
+  * @brief  创建底栏按钮容器，并生成地图 / 录轨 / 菜单三键
+  * @param  par  父对象（页面 root）
+  * @note   容器贴在 bottomInfo 下方。x 偏移 -80 / 0 / 80 相对容器中心。
+  * @retval None
+  */
 void DialplateView::BtnCont_Create(lv_obj_t* par)
 {
     lv_obj_t* cont = lv_obj_create(par);
@@ -163,6 +203,14 @@ void DialplateView::BtnCont_Create(lv_obj_t* par)
     ui.btnCont.btnMenu = Btn_Create(cont, ResourcePool::GetImage("menu"), 80);
 }
 
+/**
+  * @brief  创建一个图标按钮
+  * @param  par      父容器（btnCont）
+  * @param  img_src  背景图（资源池 locate / start / menu）
+  * @param  x_ofs    相对父容器中心的 x 偏移
+  * @note   按下变矮变宽、聚焦橙色。transition 为 static，所有按钮共用同一份描述。
+  * @retval 按钮对象指针
+  */
 lv_obj_t* DialplateView::Btn_Create(lv_obj_t* par, const void* img_src, lv_coord_t x_ofs)
 {
     lv_obj_t* obj = lv_obj_create(par);
@@ -199,6 +247,13 @@ lv_obj_t* DialplateView::Btn_Create(lv_obj_t* par, const void* img_src, lv_coord
     return obj;
 }
 
+/**
+  * @brief  播放入场（或反向离场）时间轴动画
+  * @param  reverse  false = 正向入场（默认）；true = 倒放离场
+  * @note   C++ 默认参数：AppearAnimStart() 即 reverse=false。
+  *         表盘 Presenter 只在 onViewWillAppear 里正向调用。
+  * @retval None
+  */
 void DialplateView::AppearAnimStart(bool reverse)
 {
     lv_anim_timeline_set_reverse(ui.anim_timeline, reverse);
