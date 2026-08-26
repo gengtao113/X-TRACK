@@ -373,7 +373,7 @@ Page *AppFactory_CreatePage(const char *name)
 
 ## 工程与编译
 
-LinuxSDL2 的 Makefile 已经 `find USER/App -name "*.c"`，新 `.c` 会被编进去。同时删掉对应 `.cpp`。
+LinuxSDL2 的 CMakeLists.txt 会 GLOB `USER/App` 下的 `*.c`，新 `.c` 会被编进去。同时删掉对应 `.cpp`。
 
 Keil 工程要手动把 `.cpp` 换成 `.c`。
 
@@ -387,7 +387,7 @@ Keil 工程要手动把 `.cpp` 换成 `.c`。
 ```bash
 ./gengtao_build.sh          # 只编译
 ./gengtao_build.sh run      # 编译并在 LinuxSDL2 目录启动
-./gengtao_build.sh clean    # 删除 .o 和 xtrack
+./gengtao_build.sh clean    # 删除 build_out_dir 和 xtrack
 ```
 
 ---

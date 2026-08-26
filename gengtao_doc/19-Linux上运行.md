@@ -23,28 +23,35 @@
 
 ```sh
 sudo apt update
-sudo apt install -y build-essential libsdl2-dev
+sudo apt install -y build-essential cmake libsdl2-dev
 ```
 
 需要图形界面（本机桌面或 X11/Wayland 转发）。纯 SSH 且没有 `DISPLAY` 时窗口出不来。
 
 ### 1.2 编译
 
-必须在该目录下执行（Makefile 用 `pwd` 找 `USER/App` 和模拟器 HAL）：
+推荐在仓库根目录用封装脚本（CMake，目标文件在 `build_out_dir/`）：
+
+```sh
+./gengtao_build.sh
+```
+
+或手动：
 
 ```sh
 cd Software/X-Track/LinuxSDL2
-make -j$(nproc)
+cmake -S . -B ../../../build_out_dir
+cmake --build ../../../build_out_dir -j$(nproc)
 ```
 
-产物：当前目录的 `xtrack`。清理：`make clean`。
+产物：`LinuxSDL2/xtrack`。清理：`./gengtao_build.sh clean`。
 
 编译用的 App 就是 `USER/App`（PageManager、DataCenter、表盘都在这里）；显示/输入/假 GPS 在 `Simulator/LVGL.Simulator/HAL`。
 
 ### 1.3 运行
 
 **工作目录必须是 `LinuxSDL2/`**，不要把二进制拷走再跑。  
-Makefile 里 `LV_FS_PC_PATH="../../../"`：相对本目录上三级，即仓库根 `X-TRACK/`。LVGL 打开 `/SystemSave.json`、`/MAP`、`/TRK_EXAMPLE.gpx` 都会拼到根目录下。
+CMakeLists.txt 里 `LV_FS_PC_PATH="../../../"`：相对本目录上三级，即仓库根 `X-TRACK/`。LVGL 打开 `/SystemSave.json`、`/MAP`、`/TRK_EXAMPLE.gpx` 都会拼到根目录下。
 
 ```sh
 cd Software/X-Track/LinuxSDL2
@@ -129,7 +136,7 @@ LinuxSDL2/main.cpp
 - `HAL_Encoder.cpp`：`GetDiff` 恒为 0，旋钮事件走的是 LVGL 的 SDL 滚轮，不是这套 HAL
 - 蜂鸣器/音频在 PC 上往往无声或很弱
 
-Makefile 还可改 `LV_COLOR_DEPTH`（默认 32）。SDL2 窗口分辨率是 `LV_HOR_RES=480`、`LV_VER_RES=320`，比真机 240×240 大，布局会拉伸感，属正常。
+`CMakeLists.txt` 还可改 `LV_COLOR_DEPTH`（默认 32）。SDL2 窗口分辨率是 `LV_HOR_RES=480`、`LV_VER_RES=320`，比真机 240×240 大，布局会拉伸感，属正常。
 
 ---
 
@@ -149,8 +156,8 @@ Makefile 还可改 `LV_COLOR_DEPTH`（默认 32）。SDL2 窗口分辨率是 `LV
 ## 5. 最短命令清单（桌面）
 
 ```sh
-sudo apt install -y build-essential libsdl2-dev
-cd /home/gengtao/work_xtrack/X-TRACK/Software/X-Track/LinuxSDL2
-make -j$(nproc)
-./xtrack
+sudo apt install -y build-essential cmake libsdl2-dev
+cd /home/gengtao/work_xtrack/X-TRACK
+./gengtao_build.sh
+./gengtao_build.sh run
 ```

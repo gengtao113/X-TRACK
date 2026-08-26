@@ -81,3 +81,6 @@
 # Other files
 xtrack
 MAP/
+
+# LinuxSDL2 的 CMake 构建目录（.o、CMakeCache、compile_commands.json）
+/build_out_dir/
