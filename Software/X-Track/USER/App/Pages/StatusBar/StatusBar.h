@@ -25,11 +25,14 @@
 
 #include "lvgl/lvgl.h"
 
-namespace Page
-{
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 lv_obj_t* StatusBar_Create(lv_obj_t* par);
 
+#ifdef __cplusplus
 }
+#endif
 
 #endif

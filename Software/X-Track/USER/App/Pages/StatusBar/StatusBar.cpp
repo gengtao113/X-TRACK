@@ -265,7 +265,7 @@ static void StatusBar_SetStyle(DataProc::StatusBar_Style_t style)
     }
 }
 
-lv_obj_t* Page::StatusBar_Create(lv_obj_t* par)
+lv_obj_t* StatusBar_Create(lv_obj_t* par)
 {
     lv_obj_t* cont = lv_obj_create(par);
     lv_obj_remove_style_all(cont);
