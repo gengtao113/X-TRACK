@@ -5,6 +5,7 @@ using namespace Page;
 
 SystemInfos::SystemInfos()
 {
+    base.ops = &PageOpsBinder<SystemInfos>::ops;
 }
 
 SystemInfos::~SystemInfos()
@@ -20,8 +21,8 @@ void SystemInfos::onCustomAttrConfig()
 void SystemInfos::onViewLoad()
 {
     Model.Init();
-    View.Create(_root);
-    AttachEvent(_root);
+    View.Create(base._root);
+    AttachEvent(base._root);
 
     SystemInfosView::item_t* item_grp = ((SystemInfosView::item_t*)&View.ui);
 
@@ -43,9 +44,9 @@ void SystemInfos::onViewWillAppear()
     timer = lv_timer_create(onTimerUpdate, 1000, this);
     lv_timer_ready(timer);
 
-    View.SetScrollToY(_root, -LV_VER_RES, LV_ANIM_OFF);
-    lv_obj_set_style_opa(_root, LV_OPA_TRANSP, 0);
-    lv_obj_fade_in(_root, 300, 0);
+    View.SetScrollToY(base._root, -LV_VER_RES, LV_ANIM_OFF);
+    lv_obj_set_style_opa(base._root, LV_OPA_TRANSP, 0);
+    lv_obj_fade_in(base._root, 300, 0);
 }
 
 void SystemInfos::onViewDidAppear()
@@ -57,7 +58,7 @@ void SystemInfos::onViewDidAppear()
 
 void SystemInfos::onViewWillDisappear()
 {
-    lv_obj_fade_out(_root, 300, 0);
+    lv_obj_fade_out(base._root, 300, 0);
 }
 
 void SystemInfos::onViewDidDisappear()
@@ -165,15 +166,15 @@ void SystemInfos::onEvent(lv_event_t* event)
     {
         if (lv_obj_has_state(obj, LV_STATE_FOCUSED))
         {
-            instance->_Manager->Pop();
+            instance->base._Manager->Pop();
         }
     }
 
-    if (obj == instance->_root)
+    if (obj == instance->base._root)
     {
         if (code == LV_EVENT_LEAVE)
         {
-            instance->_Manager->Pop();
+            instance->base._Manager->Pop();
         }
     }
 }

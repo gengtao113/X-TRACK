@@ -13,9 +13,11 @@ namespace Page
   *         继承 PageBase，由 PageManager 按状态机调用下面的 onViewXxx。
   *         不读 GPS 寄存器，不 lv_obj_create 整页布局。
   */
-class Dialplate : public PageBase
+class Dialplate
 {
 public:
+    PageBase base;  /**< 必须是第一项，调度器只认 PageBase* */
+
     /**
       * @brief  构造表盘 Presenter
       * @note   只初始化成员，不建控件。recState = READY，lastFocus = NULL。
@@ -26,61 +28,61 @@ public:
       * @brief  析构表盘 Presenter
       * @note   控件和 Model 在 onViewUnload 里释放，析构体为空。
       */
-    virtual ~Dialplate();
+    ~Dialplate();
 
     /**
       * @brief  自定义页面属性（Install 之后、LOAD 之前调用）
       * @note   本页关掉切页滑场动画（LOAD_ANIM_NONE）。
       */
-    virtual void onCustomAttrConfig();
+    void onCustomAttrConfig();
 
     /**
       * @brief  页面开始加载
       * @note   Model.Init()、View.Create(_root)，并给三个按钮挂事件。
       */
-    virtual void onViewLoad();
+    void onViewLoad();
 
     /**
       * @brief  页面加载结束
       * @note   表盘无额外工作。
       */
-    virtual void onViewDidLoad();
+    void onViewDidLoad();
 
     /**
       * @brief  页面即将显示
       * @note   挂编码器 group、恢复焦点、刷一帧、播入场动画。
       */
-    virtual void onViewWillAppear();
+    void onViewWillAppear();
 
     /**
       * @brief  页面已显示
       * @note   创建 1 秒刷新定时器，user_data 为 this。
       */
-    virtual void onViewDidAppear();
+    void onViewDidAppear();
 
     /**
       * @brief  页面即将离开
       * @note   记住焦点、从 group 摘掉按钮、删除刷新定时器。
       */
-    virtual void onViewWillDisappear();
+    void onViewWillDisappear();
 
     /**
       * @brief  页面已离开
       * @note   表盘无额外工作。
       */
-    virtual void onViewDidDisappear();
+    void onViewDidDisappear();
 
     /**
       * @brief  页面卸载
       * @note   Model.Deinit()、View.Delete()。_root 由 PageManager 删除。
       */
-    virtual void onViewUnload();
+    void onViewUnload();
 
     /**
       * @brief  页面卸载结束
       * @note   表盘无额外工作。
       */
-    virtual void onViewDidUnload();
+    void onViewDidUnload();
 
 private:
     /**

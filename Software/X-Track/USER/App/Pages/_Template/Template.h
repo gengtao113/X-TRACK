@@ -12,9 +12,11 @@ namespace Page
   * @note   复制本目录改类名即可。示范：缓存、切页动画、stash 传参、timer、Pop。
   *         C 对应 struct { Page base; TemplateView view; TemplateModel model; timer; }。
   */
-class Template : public PageBase
+class Template
 {
 public:
+    PageBase base;  /**< 必须是第一项，调度器只认 PageBase* */
+
     /**
       * @brief  Push 时经 stash 传入的参数
       * @note   onViewWillAppear 里 PAGE_STASH_POP 取出。没有 stash 则用默认白底、1s。
@@ -36,61 +38,61 @@ public:
       * @brief  析构
       * @note   本模板析构体为空。
       */
-    virtual ~Template();
+    ~Template();
 
     /**
       * @brief  自定义页面属性（Install 之后、LOAD 之前）
       * @note   开缓存；切页动画从底部弹入 1000ms，曲线 bounce。
       */
-    virtual void onCustomAttrConfig();
+    void onCustomAttrConfig();
 
     /**
       * @brief  页面开始加载
       * @note   View.Create(_root)，标题写成页面名 _Name，给 root 挂事件，记下当前 tick。
       */
-    virtual void onViewLoad();
+    void onViewLoad();
 
     /**
       * @brief  页面加载结束
       * @note   模板无额外工作。
       */
-    virtual void onViewDidLoad();
+    void onViewDidLoad();
 
     /**
       * @brief  页面即将显示
       * @note   取 stash（失败用默认），设背景色，按 param.time 创建刷新 timer。
       */
-    virtual void onViewWillAppear();
+    void onViewWillAppear();
 
     /**
       * @brief  页面已显示
       * @note   模板无额外工作。
       */
-    virtual void onViewDidAppear();
+    void onViewDidAppear();
 
     /**
       * @brief  页面即将离开
       * @note   模板无额外工作。
       */
-    virtual void onViewWillDisappear();
+    void onViewWillDisappear();
 
     /**
       * @brief  页面已离开
       * @note   删除刷新 timer。
       */
-    virtual void onViewDidDisappear();
+    void onViewDidDisappear();
 
     /**
       * @brief  页面卸载
       * @note   模板未调 View.Delete / Model.Deinit（空壳）。
       */
-    virtual void onViewUnload();
+    void onViewUnload();
 
     /**
       * @brief  页面卸载结束
       * @note   模板无额外工作。
       */
-    virtual void onViewDidUnload();
+    void onViewDidUnload();
 
 private:
     /**

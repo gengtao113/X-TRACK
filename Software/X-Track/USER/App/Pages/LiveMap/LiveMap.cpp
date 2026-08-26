@@ -7,6 +7,7 @@ uint16_t LiveMap::mapLevelCurrent = CONFIG_LIVE_MAP_LEVEL_DEFAULT;
 
 LiveMap::LiveMap()
 {
+    base.ops = &PageOpsBinder<LiveMap>::ops;
     memset(&priv, 0, sizeof(priv));
 }
 
@@ -17,7 +18,7 @@ LiveMap::~LiveMap()
 
 void LiveMap::onCustomAttrConfig()
 {
-    SetCustomCacheEnable(false);
+    Page_SetCustomCacheEnable(&base, false);
 }
 
 void LiveMap::onViewLoad()
@@ -34,7 +35,7 @@ void LiveMap::onViewLoad()
     TileConv::Rect_t rect;
     uint32_t tileNum = Model.tileConv.GetTileContainer(&rect);
 
-    View.Create(_root, tileNum);
+    View.Create(base._root, tileNum);
     lv_slider_set_range(
         View.ui.zoom.slider,
         Model.mapConv.GetLevelMin(),
@@ -50,7 +51,7 @@ void LiveMap::onViewLoad()
     lv_obj_set_style_border_width(contView, 1, 0);
 #endif
 
-    AttachEvent(_root);
+    AttachEvent(base._root);
     AttachEvent(View.ui.zoom.slider);
     AttachEvent(View.ui.sportInfo.cont);
 
@@ -79,7 +80,7 @@ void LiveMap::onViewDidLoad()
 
 void LiveMap::onViewWillAppear()
 {
-    lv_obj_set_style_opa(_root, LV_OPA_COVER, LV_PART_MAIN);
+    lv_obj_set_style_opa(base._root, LV_OPA_COVER, LV_PART_MAIN);
     Model.Init();
 
     char theme[16];
@@ -124,7 +125,7 @@ void LiveMap::onViewWillDisappear()
 {
     lv_timer_del(priv.timer);
     lv_obj_add_flag(View.ui.map.cont, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_fade_out(_root, 250, 250);
+    lv_obj_fade_out(base._root, 250, 250);
 }
 
 void LiveMap::onViewDidDisappear()
@@ -376,7 +377,7 @@ void LiveMap::onEvent(lv_event_t* event)
 
     if (code == LV_EVENT_LEAVE)
     {
-        instance->_Manager->Pop();
+        instance->base._Manager->Pop();
         return;
     }
 
@@ -394,7 +395,7 @@ void LiveMap::onEvent(lv_event_t* event)
         }
         else if (code == LV_EVENT_PRESSED)
         {
-            instance->_Manager->Pop();
+            instance->base._Manager->Pop();
         }
     }
 
@@ -402,7 +403,7 @@ void LiveMap::onEvent(lv_event_t* event)
     {
         if (code == LV_EVENT_PRESSED)
         {
-            instance->_Manager->Pop();
+            instance->base._Manager->Pop();
         }
     }
 }

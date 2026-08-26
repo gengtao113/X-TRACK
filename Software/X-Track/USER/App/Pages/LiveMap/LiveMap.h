@@ -7,21 +7,23 @@
 namespace Page
 {
 
-class LiveMap : public PageBase
+class LiveMap
 {
 public:
-    LiveMap();
-    virtual ~LiveMap();
+    PageBase base;  /**< 必须是第一项，调度器只认 PageBase* */
 
-    virtual void onCustomAttrConfig();
-    virtual void onViewLoad();
-    virtual void onViewDidLoad();
-    virtual void onViewWillAppear();
-    virtual void onViewDidAppear();
-    virtual void onViewWillDisappear();
-    virtual void onViewDidDisappear();
-    virtual void onViewUnload();
-    virtual void onViewDidUnload();
+    LiveMap();
+    ~LiveMap();
+
+    void onCustomAttrConfig();
+    void onViewLoad();
+    void onViewDidLoad();
+    void onViewWillAppear();
+    void onViewDidAppear();
+    void onViewWillDisappear();
+    void onViewDidDisappear();
+    void onViewUnload();
+    void onViewDidUnload();
 
 private:
     LiveMapView View;

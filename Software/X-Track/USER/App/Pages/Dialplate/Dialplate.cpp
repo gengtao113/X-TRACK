@@ -12,6 +12,7 @@ Dialplate::Dialplate()
     : recState(RECORD_STATE_READY)
     , lastFocus(nullptr)
 {
+    base.ops = &PageOpsBinder<Dialplate>::ops;
 }
 
 /**
@@ -30,19 +31,19 @@ Dialplate::~Dialplate()
   */
 void Dialplate::onCustomAttrConfig()
 {
-    SetCustomLoadAnimType(PageManager::LOAD_ANIM_NONE);
+    Page_SetCustomLoadAnimType(&base, PageManager::LOAD_ANIM_NONE, PAGE_ANIM_TIME_DEFAULT, PAGE_ANIM_PATH_DEFAULT);
 }
 
 /**
   * @brief  页面开始加载：创建 Model / View，并给三个按钮挂事件
-  * @note   PageManager 此时已建好 _root。C 对应 on_load：
+  * @note   PageManager 此时已建好 base._root。C 对应 on_load：
   *         Model.Init()、View.Create(root)、lv_obj_add_event_cb。
   * @retval None
   */
 void Dialplate::onViewLoad()
 {
     Model.Init();
-    View.Create(_root);
+    View.Create(base._root);
 
     AttachEvent(View.ui.btnCont.btnMap);
     AttachEvent(View.ui.btnCont.btnRec);
@@ -130,7 +131,7 @@ void Dialplate::onViewDidDisappear()
 
 /**
   * @brief  页面卸载：释放 Model 与 View
-  * @note   C 对应 on_unload。_root 由 PageManager 异步删除，这里只删动画时间线。
+  * @note   C 对应 on_unload。base._root 由 PageManager 异步删除，这里只删动画时间线。
   * @retval None
   */
 void Dialplate::onViewUnload()
@@ -222,11 +223,11 @@ void Dialplate::onBtnClicked(lv_obj_t* btn)
 {
     if (btn == View.ui.btnCont.btnMap)           ///< 地图键短按
     {
-        _Manager->Push("Pages/LiveMap");         ///< 压栈进入地图；名字是 Install 的 appName
+        base._Manager->Push("Pages/LiveMap");         ///< 压栈进入地图；名字是 Install 的 appName
     }
     else if (btn == View.ui.btnCont.btnMenu)     ///< 菜单键短按
     {
-        _Manager->Push("Pages/SystemInfos");     ///< 压栈进入系统信息；返回时对方 Pop
+        base._Manager->Push("Pages/SystemInfos");     ///< 压栈进入系统信息；返回时对方 Pop
     }
     /* 录轨键也会进本函数，两个 if 都对不上，直接返回。录轨在 onEvent 里另调 onRecord。 */
 }

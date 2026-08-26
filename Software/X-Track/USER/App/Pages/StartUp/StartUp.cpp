@@ -4,6 +4,7 @@ using namespace Page;
 
 Startup::Startup()
 {
+    base.ops = &PageOpsBinder<Startup>::ops;
 }
 
 Startup::~Startup()
@@ -13,15 +14,15 @@ Startup::~Startup()
 
 void Startup::onCustomAttrConfig()
 {
-    SetCustomCacheEnable(false);
-    SetCustomLoadAnimType(PageManager::LOAD_ANIM_NONE);
+    Page_SetCustomCacheEnable(&base, false);
+    Page_SetCustomLoadAnimType(&base, PageManager::LOAD_ANIM_NONE, PAGE_ANIM_TIME_DEFAULT, PAGE_ANIM_PATH_DEFAULT);
 }
 
 void Startup::onViewLoad()
 {
     Model.Init();
     Model.SetEncoderEnable(false);
-    View.Create(_root);
+    View.Create(base._root);
     lv_timer_t* timer = lv_timer_create(onTimer, 2000, this);
     lv_timer_set_repeat_count(timer, 1);
 }
@@ -38,7 +39,7 @@ void Startup::onViewWillAppear()
 
 void Startup::onViewDidAppear()
 {
-    lv_obj_fade_out(_root, 500, 1500);
+    lv_obj_fade_out(base._root, 500, 1500);
 }
 
 void Startup::onViewWillDisappear()
@@ -66,7 +67,7 @@ void Startup::onTimer(lv_timer_t* timer)
 {
     Startup* instance = (Startup*)timer->user_data;
 
-    instance->_Manager->Replace("Pages/Dialplate");
+    instance->base._Manager->Replace("Pages/Dialplate");
 }
 
 void Startup::onEvent(lv_event_t* event)
@@ -77,7 +78,7 @@ void Startup::onEvent(lv_event_t* event)
     lv_obj_t* obj = lv_event_get_current_target(event);
     lv_event_code_t code = lv_event_get_code(event);
 
-    if (obj == instance->_root)
+    if (obj == instance->base._root)
     {
         if (code == LV_EVENT_LEAVE)
         {

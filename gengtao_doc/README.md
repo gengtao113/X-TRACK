@@ -27,6 +27,11 @@
 | [13-裸机框架-C语言.md](13-裸机框架-C语言.md) | 无 RTOS：main 循环、MillisTask、LVGL timer、10ms 中断 |
 | [14-PageManager-C语言.md](14-PageManager-C语言.md) | 页面池/栈、Install/Push/Pop/Replace、生命周期状态机 |
 | [15-六个文件夹的业务.md](15-六个文件夹的业务.md) | Dialplate / LiveMap / StartUp / StatusBar / SystemInfos / _Template |
+| [16-设计-页面生命周期.md](16-设计-页面生命周期.md) | 为什么要状态机；一次 Push 实际跑哪些回调 |
+| [17-设计-发布订阅.md](17-设计-发布订阅.md) | 为什么页面不读 HAL；Publish/Pull/Notify 三条路径 |
+| [18-设计-MVP分层.md](18-设计-MVP分层.md) | 三文件职责；一次长按如何穿过 View/Presenter/Model |
+| [19-Linux上运行.md](19-Linux上运行.md) | 桌面用 SDL2 编译运行；framebuffer 为备选 |
+| [20-Pages从C++转到C.md](20-Pages从C++转到C.md) | Pages 目录 C++→C：步骤 1～7，按文档顺序改 |
 
 ## 源码入口（优先打开）
 

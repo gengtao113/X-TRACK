@@ -29,7 +29,7 @@
    * @param  stash: Parameters passed to the new page
    * @retval Return true if successful
    */
-bool PageManager::Replace(const char* name, const PageBase::Stash_t* stash)
+bool PageManager::Replace(const char* name, const PageStash_t* stash)
 {
     /* Check whether the animation of switching pages is being executed */
     if (!SwitchAnimStateCheck())
@@ -86,7 +86,7 @@ bool PageManager::Replace(const char* name, const PageBase::Stash_t* stash)
   * @param  stash: Parameters passed to the new page
   * @retval Return true if successful
   */
-bool PageManager::Push(const char* name, const PageBase::Stash_t* stash)
+bool PageManager::Push(const char* name, const PageStash_t* stash)
 {
     /* Check whether the animation of switching pages is being executed */
     if (!SwitchAnimStateCheck())
@@ -175,7 +175,7 @@ bool PageManager::Pop()
   * @param  stash: Parameters passed to the new page
   * @retval Return true if successful
   */
-bool PageManager::SwitchTo(PageBase* newNode, bool isEnterAct, const PageBase::Stash_t* stash)
+bool PageManager::SwitchTo(PageBase* newNode, bool isEnterAct, const PageStash_t* stash)
 {
     if (newNode == nullptr)
     {
@@ -234,12 +234,12 @@ bool PageManager::SwitchTo(PageBase* newNode, bool isEnterAct, const PageBase::S
     {
         /* Direct display, no need to load */
         PM_LOG_INFO("Page(%s) has cached, appear driectly", _PageCurrent->_Name);
-        _PageCurrent->priv.State = PageBase::PAGE_STATE_WILL_APPEAR;
+        _PageCurrent->priv.State = PAGE_STATE_WILL_APPEAR;
     }
     else
     {
         /* Load page */
-        _PageCurrent->priv.State = PageBase::PAGE_STATE_LOAD;
+        _PageCurrent->priv.State = PAGE_STATE_LOAD;
     }
 
     if (_PagePrev != nullptr)
@@ -294,11 +294,11 @@ bool PageManager::FourceUnload(PageBase* base)
 
     PM_LOG_INFO("Page(%s) Fource unloading...", base->_Name);
 
-    if (base->priv.State == PageBase::PAGE_STATE_ACTIVITY)
+    if (base->priv.State == PAGE_STATE_ACTIVITY)
     {
         PM_LOG_INFO("Page state is ACTIVITY, Disappearing...");
-        base->onViewWillDisappear();
-        base->onViewDidDisappear();
+        PAGE_CALL(base, on_will_disappear);
+        PAGE_CALL(base, on_did_disappear);
     }
 
     base->priv.State = StateUnloadExecute(base);

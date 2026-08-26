@@ -154,14 +154,14 @@ public:
       * @param  stash  可选参数，传给新页
       * @note   开机 Startup → Dialplate 用这个，避免开机页压在栈底。
       */
-    bool Replace(const char* name, const PageBase::Stash_t* stash = nullptr);
+    bool Replace(const char* name, const PageStash_t* stash = nullptr);
 
     /**
       * @brief  压栈进入新页，旧页仍在栈里（默认可缓存）
       * @param  name   目标应用名，必须已 Install，且不能已在栈中
       * @param  stash  可选参数
       */
-    bool Push(const char* name, const PageBase::Stash_t* stash = nullptr);
+    bool Push(const char* name, const PageStash_t* stash = nullptr);
 
     /**
       * @brief  弹出当前页，回到栈里下一页
@@ -274,7 +274,7 @@ private:
       * @param  isEnterAct  true = Push/Replace 进入；false = Pop 返回
       * @param  stash       可选参数
       */
-    bool SwitchTo(PageBase* base, bool isEnterAct, const PageBase::Stash_t* stash = nullptr);
+    bool SwitchTo(PageBase* base, bool isEnterAct, const PageStash_t* stash = nullptr);
 
     /** 切页动画结束：再 StateUpdate 进 DID_APPEAR / DID_DISAPPEAR */
     static void onSwitchAnimFinish(lv_anim_t* a);
@@ -286,12 +286,12 @@ private:
     /** 动画忙则拒绝新的 Push/Pop */
     bool SwitchAnimStateCheck();
 
-    PageBase::State_t StateLoadExecute(PageBase* base);
-    PageBase::State_t StateWillAppearExecute(PageBase* base);
-    PageBase::State_t StateDidAppearExecute(PageBase* base);
-    PageBase::State_t StateWillDisappearExecute(PageBase* base);
-    PageBase::State_t StateDidDisappearExecute(PageBase* base);
-    PageBase::State_t StateUnloadExecute(PageBase* base);
+    PageState_t StateLoadExecute(PageBase* base);
+    PageState_t StateWillAppearExecute(PageBase* base);
+    PageState_t StateDidAppearExecute(PageBase* base);
+    PageState_t StateWillDisappearExecute(PageBase* base);
+    PageState_t StateDidDisappearExecute(PageBase* base);
+    PageState_t StateUnloadExecute(PageBase* base);
 
     /**
       * @brief  按 base->priv.State 跑一步状态机并回调 onViewXxx
@@ -299,7 +299,7 @@ private:
     void StateUpdate(PageBase* base);
 
     /** 当前页的生命周期状态 */
-    PageBase::State_t GetState()
+    PageState_t GetState()
     {
         return _PageCurrent->priv.State;
     }
@@ -324,8 +324,8 @@ private:
         bool IsBusy;                   /**< 正在切 */
         bool IsEntering;               /**< true = 进入动作；false = Pop 退出 */
 
-        PageBase::AnimAttr_t Current;  /**< 本次实际使用的动画 */
-        PageBase::AnimAttr_t Global;   /**< SetGlobalLoadAnimType 保存的全局值 */
+        PageAnimAttr_t Current;  /**< 本次实际使用的动画 */
+        PageAnimAttr_t Global;   /**< SetGlobalLoadAnimType 保存的全局值 */
     } _AnimState;
 
     lv_style_t* _RootDefaultStyle;    /**< LOAD 时加到每个 _root 上 */
