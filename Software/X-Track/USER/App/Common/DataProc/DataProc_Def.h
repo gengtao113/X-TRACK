@@ -51,6 +51,7 @@ typedef struct
     Storage_Type_t type;
 } Storage_Info_t;
 
+#ifdef __cplusplus
 #define STORAGE_VALUE_REG(act, data, dataType)\
 do{\
     DataProc::Storage_Info_t info; \
@@ -62,6 +63,19 @@ do{\
     info.type = dataType; \
     act->Notify("Storage", &info, sizeof(info)); \
 }while(0)
+#else
+#define STORAGE_VALUE_REG(act, data, dataType)\
+do{\
+    Storage_Info_t info; \
+    DATA_PROC_INIT_STRUCT(info); \
+    info.cmd = STORAGE_CMD_ADD; \
+    info.key = #data; \
+    info.value = &data; \
+    info.size = sizeof(data); \
+    info.type = dataType; \
+    Account_Notify(act, "Storage", &info, sizeof(info)); \
+}while(0)
+#endif
 
 typedef struct
 {

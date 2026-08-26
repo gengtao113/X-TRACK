@@ -48,6 +48,15 @@ int Account_Subscribe(Account* a, const char* name)
     return 0;
 }
 
+int Account_Unsubscribe(Account* a, const char* name)
+{
+    if (a == nullptr || !a->Unsubscribe(name))
+    {
+        return -1;
+    }
+    return 0;
+}
+
 int Account_Pull(Account* a, const char* name, void* buf, uint32_t size)
 {
     if (a == nullptr)
@@ -66,6 +75,24 @@ int Account_Notify(Account* a, const char* name, const void* buf, uint32_t size)
     return a->Notify(name, buf, size);
 }
 
+bool Account_Commit(Account* a, const void* data, uint32_t size)
+{
+    if (a == nullptr)
+    {
+        return false;
+    }
+    return a->Commit(data, size);
+}
+
+int Account_Publish(Account* a)
+{
+    if (a == nullptr)
+    {
+        return ACCOUNT_RES_PARAM_ERROR;
+    }
+    return a->Publish();
+}
+
 void Account_SetCallback(Account* a, Account_Callback cb)
 {
     if (a == nullptr)
@@ -75,6 +102,24 @@ void Account_SetCallback(Account* a, Account_Callback cb)
     AccountC* wrap = (AccountC*)a;
     wrap->cb = cb;
     a->SetEventCallback(AccountC_Trampoline);
+}
+
+void Account_SetTimerPeriod(Account* a, uint32_t period)
+{
+    if (a == nullptr)
+    {
+        return;
+    }
+    a->SetTimerPeriod(period);
+}
+
+void Account_SetTimerEnable(Account* a, bool en)
+{
+    if (a == nullptr)
+    {
+        return;
+    }
+    a->SetTimerEnable(en);
 }
 
 const char* Account_GetID(Account* a)

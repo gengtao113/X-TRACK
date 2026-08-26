@@ -2,6 +2,7 @@
 #define __ACCOUNT_C_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef __cplusplus
 class Account;
@@ -40,9 +41,14 @@ typedef int (*Account_Callback)(Account* a, int event, void* from, void* data, u
 Account*    Account_Create(const char* id, void* center, uint32_t buf, void* user);
 void        Account_Destroy(Account* a);
 int         Account_Subscribe(Account* a, const char* name);
+int         Account_Unsubscribe(Account* a, const char* name);
 int         Account_Pull(Account* a, const char* name, void* buf, uint32_t size);
 int         Account_Notify(Account* a, const char* name, const void* buf, uint32_t size);
+bool        Account_Commit(Account* a, const void* data, uint32_t size);
+int         Account_Publish(Account* a);
 void        Account_SetCallback(Account* a, Account_Callback cb);
+void        Account_SetTimerPeriod(Account* a, uint32_t period);
+void        Account_SetTimerEnable(Account* a, bool en);
 const char* Account_GetID(Account* a);
 void*       Account_GetUser(Account* a);
 

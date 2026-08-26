@@ -1,5 +1,6 @@
 #include "DataProc.h"
-#include "../HAL/HAL.h"
+#include "dataproc_c.h"
+#include "Utils/DataCenter/account_c.h"
 
 static DataCenter center("CENTER");
 
@@ -8,19 +9,34 @@ DataCenter* DataProc::Center()
     return &center;
 }
 
+uint32_t DataProc::GetTick()
+{
+    return DataProc_GetTick();
+}
+
+uint32_t DataProc::GetTickElaps(uint32_t prevTick)
+{
+    return DataProc_GetTickElaps(prevTick);
+}
+
+const char* DataProc::MakeTimeString(uint64_t ms, char* buf, uint16_t len)
+{
+    return DataProc_MakeTimeString(ms, buf, len);
+}
+
+#define DP_DEF(NODE_NAME, BUFFER_SIZE) DATA_PROC_INIT_DEF(NODE_NAME);
+#include "DP_LIST.inc"
+#undef DP_DEF
+
 void DataProc_Init()
 {
 #define DP_DEF(NODE_NAME, BUFFER_SIZE)\
-    Account* act##NODE_NAME = new Account(#NODE_NAME, &center, BUFFER_SIZE);
+    Account* act##NODE_NAME = Account_Create(#NODE_NAME, &center, BUFFER_SIZE, nullptr);
 #  include "DP_LIST.inc"
 #undef DP_DEF
 
 #define DP_DEF(NODE_NAME, BUFFER_SIZE)\
-do{\
-    DATA_PROC_INIT_DEF(NODE_NAME);\
-    _DP_##NODE_NAME##_Init(act##NODE_NAME);\
-}while(0)
+    _DP_##NODE_NAME##_Init(act##NODE_NAME);
 #  include "DP_LIST.inc"
 #undef DP_DEF
-
 }
