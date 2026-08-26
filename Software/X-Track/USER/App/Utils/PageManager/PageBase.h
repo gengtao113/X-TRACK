@@ -27,11 +27,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-class PageManager;
-#else
 typedef struct PageManager PageManager;
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,42 +180,6 @@ bool page_replace(PageBase* page, const char* name, const PageStash_t* stash);
 
 #ifdef __cplusplus
 } /* extern "C" */
-
-/**
-  * @brief  C++ 页面填 ops 用：把现有 onViewXxx 机械接到函数指针表
-  * @note   要求 Class 的第一项是 PageBase base。构造里：base.ops = &PageOpsBinder<Class>::ops;
-  */
-template <typename T>
-struct PageOpsBinder
-{
-    static void on_custom_attr(PageBase* p) { reinterpret_cast<T*>(p)->onCustomAttrConfig(); }
-    static void on_load(PageBase* p) { reinterpret_cast<T*>(p)->onViewLoad(); }
-    static void on_did_load(PageBase* p) { reinterpret_cast<T*>(p)->onViewDidLoad(); }
-    static void on_will_appear(PageBase* p) { reinterpret_cast<T*>(p)->onViewWillAppear(); }
-    static void on_did_appear(PageBase* p) { reinterpret_cast<T*>(p)->onViewDidAppear(); }
-    static void on_will_disappear(PageBase* p) { reinterpret_cast<T*>(p)->onViewWillDisappear(); }
-    static void on_did_disappear(PageBase* p) { reinterpret_cast<T*>(p)->onViewDidDisappear(); }
-    static void on_unload(PageBase* p) { reinterpret_cast<T*>(p)->onViewUnload(); }
-    static void on_did_unload(PageBase* p) { reinterpret_cast<T*>(p)->onViewDidUnload(); }
-    static void destroy(PageBase* p) { delete reinterpret_cast<T*>(p); }
-
-    static const PageOps ops;
-};
-
-template <typename T>
-const PageOps PageOpsBinder<T>::ops = {
-    PageOpsBinder<T>::on_custom_attr,
-    PageOpsBinder<T>::on_load,
-    PageOpsBinder<T>::on_did_load,
-    PageOpsBinder<T>::on_will_appear,
-    PageOpsBinder<T>::on_did_appear,
-    PageOpsBinder<T>::on_will_disappear,
-    PageOpsBinder<T>::on_did_disappear,
-    PageOpsBinder<T>::on_unload,
-    PageOpsBinder<T>::on_did_unload,
-    PageOpsBinder<T>::destroy
-};
-
-#endif /* __cplusplus */
+#endif
 
 #endif /* ! __PAGE_BASE_H */

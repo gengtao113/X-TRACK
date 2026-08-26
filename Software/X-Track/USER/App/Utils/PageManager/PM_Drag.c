@@ -34,7 +34,7 @@
   * @param  event: Pointer to event structure
   * @retval None
   */
-void PageManager::onRootDragEvent(lv_event_t* event)
+void PageManager_onRootDragEvent(lv_event_t* event)
 {
     lv_event_code_t eventCode = lv_event_get_code(event);
 
@@ -46,7 +46,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
     lv_obj_t* root = lv_event_get_current_target(event);
     PageBase* base = (PageBase*)lv_event_get_user_data(event);
 
-    if (base == nullptr)
+    if (base == NULL)
     {
         PM_LOG_ERROR("Page base is NULL");
         return;
@@ -55,7 +55,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
     PageManager* manager = base->_Manager;
     LoadAnimAttr_t animAttr;
 
-    if (!manager->GetCurrentLoadAnimAttr(&animAttr))
+    if (!PageManager_GetCurrentLoadAnimAttr(manager, &animAttr))
     {
         PM_LOG_ERROR("Can't get current anim attr");
         return;
@@ -78,7 +78,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
         manager->_AnimState.IsBusy = false;
 
         /* Temporary showing the bottom page */
-        PageBase* bottomPage = manager->GetStackTopAfter();
+        PageBase* bottomPage = PageManager_GetStackTopAfter(manager);
         lv_obj_clear_flag(bottomPage->_root, LV_OBJ_FLAG_HIDDEN);
     }
     else if (eventCode == LV_EVENT_PRESSING)
@@ -115,7 +115,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
 
         lv_coord_t x_predict = 0;
         lv_coord_t y_predict = 0;
-        RootGetDragPredict(&x_predict, &y_predict);
+        PageManager_RootGetDragPredict(&x_predict, &y_predict);
 
         lv_coord_t start = animAttr.getter(root);
         lv_coord_t end = start;
@@ -133,19 +133,19 @@ void PageManager::onRootDragEvent(lv_event_t* event)
 
         if (abs(end) > abs((int)offset_sum) / 2)
         {
-            lv_async_call(onRootAsyncLeave, base);
+            lv_async_call(PageManager_onRootAsyncLeave, base);
         }
         else if(end != animAttr.push.enter.end)
         {
             manager->_AnimState.IsBusy = true;
 
             lv_anim_t a;
-            manager->AnimDefaultInit(&a);
+            PageManager_AnimDefaultInit(manager, &a);
             lv_anim_set_user_data(&a, manager);
             lv_anim_set_var(&a, root);
             lv_anim_set_values(&a, start, animAttr.push.enter.end);
             lv_anim_set_exec_cb(&a, animAttr.setter);
-            lv_anim_set_ready_cb(&a, onRootDragAnimFinish);
+            lv_anim_set_ready_cb(&a, PageManager_onRootDragAnimFinish);
             lv_anim_start(&a);
             PM_LOG_INFO("Root drag anim start");
         }
@@ -157,14 +157,14 @@ void PageManager::onRootDragEvent(lv_event_t* event)
   * @param  a: Pointer to animation
   * @retval None
   */
-void PageManager::onRootDragAnimFinish(lv_anim_t* a)
+void PageManager_onRootDragAnimFinish(lv_anim_t* a)
 {
     PageManager* manager = (PageManager*)lv_anim_get_user_data(a);
     PM_LOG_INFO("Root drag anim finish");
     manager->_AnimState.IsBusy = false;
 
     /* Hide the bottom page */
-    PageBase* bottomPage = manager->GetStackTopAfter();
+    PageBase* bottomPage = PageManager_GetStackTopAfter(manager);
     if (bottomPage)
     {
         lv_obj_add_flag(bottomPage->_root, LV_OBJ_FLAG_HIDDEN);
@@ -176,12 +176,13 @@ void PageManager::onRootDragAnimFinish(lv_anim_t* a)
   * @param  root: Pointer to the root object
   * @retval None
   */
-void PageManager::RootEnableDrag(lv_obj_t* root)
+void PageManager_RootEnableDrag(PageManager* pm, lv_obj_t* root)
 {
     PageBase* base = (PageBase*)lv_obj_get_user_data(root);
+    (void)pm;
     lv_obj_add_event_cb(
         root,
-        onRootDragEvent,
+        PageManager_onRootDragEvent,
         LV_EVENT_ALL,
         base
     );
@@ -193,7 +194,7 @@ void PageManager::RootEnableDrag(lv_obj_t* root)
   * @param  data: Pointer to the base class of the page
   * @retval None
   */
-void PageManager::onRootAsyncLeave(void* data)
+void PageManager_onRootAsyncLeave(void* data)
 {
     PageBase* base = (PageBase*)data;
     PM_LOG_INFO("Page(%s) send event: LV_EVENT_LEAVE, need to handle...", base->_Name);
@@ -206,7 +207,7 @@ void PageManager::onRootAsyncLeave(void* data)
   * @param  y: y stop point
   * @retval None
   */
-void PageManager::RootGetDragPredict(lv_coord_t* x, lv_coord_t* y)
+void PageManager_RootGetDragPredict(lv_coord_t* x, lv_coord_t* y)
 {
     lv_indev_t* indev = lv_indev_get_act();
     lv_point_t vect;

@@ -28,9 +28,9 @@
   * @param  base: Pointer to the updated page
   * @retval None
   */
-void PageManager::StateUpdate(PageBase* base)
+void PageManager_StateUpdate(PageManager* pm, PageBase* base)
 {
-    if (base == nullptr)
+    if (base == NULL)
         return;
 
     switch (base->priv.State)
@@ -40,39 +40,39 @@ void PageManager::StateUpdate(PageBase* base)
         break;
 
     case PAGE_STATE_LOAD:
-        base->priv.State = StateLoadExecute(base);
-        StateUpdate(base);
+        base->priv.State = PageManager_StateLoadExecute(pm, base);
+        PageManager_StateUpdate(pm, base);
         break;
 
     case PAGE_STATE_WILL_APPEAR:
-        base->priv.State = StateWillAppearExecute(base);
+        base->priv.State = PageManager_StateWillAppearExecute(pm, base);
         break;
 
     case PAGE_STATE_DID_APPEAR:
-        base->priv.State = StateDidAppearExecute(base);
+        base->priv.State = PageManager_StateDidAppearExecute(pm, base);
         PM_LOG_INFO("Page(%s) state active", base->_Name);
         break;
 
     case PAGE_STATE_ACTIVITY:
         PM_LOG_INFO("Page(%s) state active break", base->_Name);
         base->priv.State = PAGE_STATE_WILL_DISAPPEAR;
-        StateUpdate(base);
+        PageManager_StateUpdate(pm, base);
         break;
 
     case PAGE_STATE_WILL_DISAPPEAR:
-        base->priv.State = StateWillDisappearExecute(base);
+        base->priv.State = PageManager_StateWillDisappearExecute(pm, base);
         break;
 
     case PAGE_STATE_DID_DISAPPEAR:
-        base->priv.State = StateDidDisappearExecute(base);
+        base->priv.State = PageManager_StateDidDisappearExecute(pm, base);
         if (base->priv.State == PAGE_STATE_UNLOAD)
         {
-            StateUpdate(base);
+            PageManager_StateUpdate(pm, base);
         }
         break;
 
     case PAGE_STATE_UNLOAD:
-        base->priv.State = StateUnloadExecute(base);
+        base->priv.State = PageManager_StateUnloadExecute(pm, base);
         break;
 
     default:
@@ -86,13 +86,13 @@ void PageManager::StateUpdate(PageBase* base)
   * @param  base: Pointer to the updated page
   * @retval Next state
   */
-PageState_t PageManager::StateLoadExecute(PageBase* base)
+PageState_t PageManager_StateLoadExecute(PageManager* pm, PageBase* base)
 {
     PM_LOG_INFO("Page(%s) state load", base->_Name);
 
-    if (base->_root != nullptr)
+    if (base->_root != NULL)
     {
-        PM_LOG_ERROR("Page(%s) root must be nullptr", base->_Name);
+        PM_LOG_ERROR("Page(%s) root must be NULL", base->_Name);
     }
 
     lv_obj_t* root_obj = lv_obj_create(lv_scr_act());
@@ -100,26 +100,26 @@ PageState_t PageManager::StateLoadExecute(PageBase* base)
     lv_obj_clear_flag(root_obj, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_user_data(root_obj, base);
 
-    if (_RootDefaultStyle)
+    if (pm->_RootDefaultStyle)
     {
-        lv_obj_add_style(root_obj, _RootDefaultStyle, LV_PART_MAIN);
+        lv_obj_add_style(root_obj, pm->_RootDefaultStyle, LV_PART_MAIN);
     }
 
     base->_root = root_obj;
     PAGE_CALL(base, on_load);
 
-    if (GetIsOverAnim(GetCurrentLoadAnimType()))
+    if (PageManager_GetIsOverAnim(PageManager_GetCurrentLoadAnimType(pm)))
     {
-        PageBase* bottomPage = GetStackTopAfter();
+        PageBase* bottomPage = PageManager_GetStackTopAfter(pm);
 
-        if (bottomPage != nullptr && bottomPage->priv.IsCached)
+        if (bottomPage != NULL && bottomPage->priv.IsCached)
         {
             LoadAnimAttr_t animAttr;
-            if (GetCurrentLoadAnimAttr(&animAttr))
+            if (PageManager_GetCurrentLoadAnimAttr(pm, &animAttr))
             {
                 if (animAttr.dragDir != ROOT_DRAG_DIR_NONE)
                 {
-                    RootEnableDrag(base->_root);
+                    PageManager_RootEnableDrag(pm, base->_root);
                 }
             }
         }
@@ -146,12 +146,12 @@ PageState_t PageManager::StateLoadExecute(PageBase* base)
   * @param  base: Pointer to the updated page
   * @retval Next state
   */
-PageState_t PageManager::StateWillAppearExecute(PageBase* base)
+PageState_t PageManager_StateWillAppearExecute(PageManager* pm, PageBase* base)
 {
     PM_LOG_INFO("Page(%s) state will appear", base->_Name);
     PAGE_CALL(base, on_will_appear);
     lv_obj_clear_flag(base->_root, LV_OBJ_FLAG_HIDDEN);
-    SwitchAnimCreate(base);
+    PageManager_SwitchAnimCreate(pm, base);
     return PAGE_STATE_DID_APPEAR;
 }
 
@@ -160,7 +160,7 @@ PageState_t PageManager::StateWillAppearExecute(PageBase* base)
   * @param  base: Pointer to the updated page
   * @retval Next state
   */
-PageState_t PageManager::StateDidAppearExecute(PageBase* base)
+PageState_t PageManager_StateDidAppearExecute(PageManager* pm, PageBase* base)
 {
     PM_LOG_INFO("Page(%s) state did appear", base->_Name);
     PAGE_CALL(base, on_did_appear);
@@ -172,11 +172,11 @@ PageState_t PageManager::StateDidAppearExecute(PageBase* base)
   * @param  base: Pointer to the updated page
   * @retval Next state
   */
-PageState_t PageManager::StateWillDisappearExecute(PageBase* base)
+PageState_t PageManager_StateWillDisappearExecute(PageManager* pm, PageBase* base)
 {
     PM_LOG_INFO("Page(%s) state will disappear", base->_Name);
     PAGE_CALL(base, on_will_disappear);
-    SwitchAnimCreate(base);
+    PageManager_SwitchAnimCreate(pm, base);
     return PAGE_STATE_DID_DISAPPEAR;
 }
 
@@ -185,7 +185,7 @@ PageState_t PageManager::StateWillDisappearExecute(PageBase* base)
   * @param  base: Pointer to the updated page
   * @retval Next state
   */
-PageState_t PageManager::StateDidDisappearExecute(PageBase* base)
+PageState_t PageManager_StateDidDisappearExecute(PageManager* pm, PageBase* base)
 {
     PM_LOG_INFO("Page(%s) state did disappear", base->_Name);
     lv_obj_add_flag(base->_root, LV_OBJ_FLAG_HIDDEN);
@@ -206,27 +206,27 @@ PageState_t PageManager::StateDidDisappearExecute(PageBase* base)
   * @param  base: Pointer to the updated page
   * @retval Next state
   */
-PageState_t PageManager::StateUnloadExecute(PageBase* base)
+PageState_t PageManager_StateUnloadExecute(PageManager* pm, PageBase* base)
 {
     PM_LOG_INFO("Page(%s) state unload", base->_Name);
-    if (base->_root == nullptr)
+    if (base->_root == NULL)
     {
         PM_LOG_WARN("Page is loaded!");
         goto Exit;
     }
 
     PAGE_CALL(base, on_unload);
-    if (base->priv.Stash.ptr != nullptr && base->priv.Stash.size != 0)
+    if (base->priv.Stash.ptr != NULL && base->priv.Stash.size != 0)
     {
         PM_LOG_INFO("Page(%s) free stash(0x%p)[%d]", base->_Name, base->priv.Stash.ptr, base->priv.Stash.size);
         lv_mem_free(base->priv.Stash.ptr);
-        base->priv.Stash.ptr = nullptr;
+        base->priv.Stash.ptr = NULL;
         base->priv.Stash.size = 0;
     }
 
     /* Delete after the end of the root animation life cycle */
     lv_obj_del_async(base->_root);
-    base->_root = nullptr;
+    base->_root = NULL;
     base->priv.IsCached = false;
     PAGE_CALL(base, on_did_unload);
 

@@ -22,6 +22,39 @@
  */
 #include "PageManager.h"
 #include "PM_Log.h"
+#include <string.h>
+
+static void pm_anim_set_x(void* obj, int32_t v)
+{
+    lv_obj_set_x((lv_obj_t*)obj, v);
+}
+
+static int32_t pm_anim_get_x(void* obj)
+{
+    return (int32_t)lv_obj_get_x((lv_obj_t*)obj);
+}
+
+static void pm_anim_set_y(void* obj, int32_t v)
+{
+    lv_obj_set_y((lv_obj_t*)obj, v);
+}
+
+static int32_t pm_anim_get_y(void* obj)
+{
+    return (int32_t)lv_obj_get_y((lv_obj_t*)obj);
+}
+
+static void pm_anim_set_opa(void* obj, int32_t v)
+{
+    lv_obj_set_style_bg_opa((lv_obj_t*)obj, (lv_opa_t)v, LV_PART_MAIN);
+}
+
+static int32_t pm_anim_get_opa(void* obj)
+{
+    return (int32_t)lv_obj_get_style_bg_opa((lv_obj_t*)obj, LV_PART_MAIN);
+}
+
+
 
 /**
   * @brief  按动画类型填一张参数表（起止坐标/透明度 + 拖拽方向 + setter/getter）
@@ -33,7 +66,7 @@
   *         数值是 x 或 y（像素），FADE 则是透明度。0 表示停在屏幕内原位。
   * @retval true 成功；未知类型 false
   */
-bool PageManager::GetLoadAnimAttr(uint8_t anim, LoadAnimAttr_t* attr)
+bool PageManager_GetLoadAnimAttr(uint8_t anim, LoadAnimAttr_t* attr)
 {
     lv_coord_t hor = LV_HOR_RES;  ///< 屏宽，水平滑入/滑出的距离
     lv_coord_t ver = LV_VER_RES;  ///< 屏高，垂直滑入/滑出的距离
@@ -179,36 +212,18 @@ bool PageManager::GetLoadAnimAttr(uint8_t anim, LoadAnimAttr_t* attr)
      * [](...){ } 是 C++ lambda，当函数指针用；C 里就是三个 static 函数。 */
     if (attr->dragDir == ROOT_DRAG_DIR_HOR)
     {
-        attr->setter = [](void* obj, int32_t v)
-        {
-            lv_obj_set_x((lv_obj_t*)obj, v);
-        };
-        attr->getter = [](void* obj)
-        {
-            return (int32_t)lv_obj_get_x((lv_obj_t*)obj);
-        };
+        attr->setter = pm_anim_set_x;
+        attr->getter = pm_anim_get_x;
     }
     else if (attr->dragDir == ROOT_DRAG_DIR_VER)
     {
-        attr->setter = [](void* obj, int32_t v)
-        {
-            lv_obj_set_y((lv_obj_t*)obj, v);
-        };
-        attr->getter = [](void* obj)
-        {
-            return (int32_t)lv_obj_get_y((lv_obj_t*)obj);
-        };
+        attr->setter = pm_anim_set_y;
+        attr->getter = pm_anim_get_y;
     }
     else
     {
-        attr->setter = [](void* obj, int32_t v)
-        {
-            lv_obj_set_style_bg_opa((lv_obj_t*)obj, (lv_opa_t)v, LV_PART_MAIN);
-        };
-        attr->getter = [](void* obj)
-        {
-            return (int32_t)lv_obj_get_style_bg_opa((lv_obj_t*)obj, LV_PART_MAIN);
-        };
+        attr->setter = pm_anim_set_opa;
+        attr->getter = pm_anim_get_opa;
     }
 
     return true;

@@ -82,7 +82,7 @@ void Page_SetCustomLoadAnimType(
   */
 bool page_stash_pop(PageBase* page, void* ptr, uint32_t size)
 {
-    if (page->priv.Stash.ptr == nullptr)
+    if (page->priv.Stash.ptr == NULL)
     {
         PM_LOG_WARN("No Stash found");
         return false;
@@ -101,7 +101,7 @@ bool page_stash_pop(PageBase* page, void* ptr, uint32_t size)
 
     memcpy(ptr, page->priv.Stash.ptr, page->priv.Stash.size);
     lv_mem_free(page->priv.Stash.ptr);
-    page->priv.Stash.ptr = nullptr;
+    page->priv.Stash.ptr = NULL;
     return true;
 }
 
@@ -111,11 +111,11 @@ bool page_stash_pop(PageBase* page, void* ptr, uint32_t size)
   */
 bool page_push(PageBase* page, const char* name, const PageStash_t* stash)
 {
-    if (page == nullptr || page->_Manager == nullptr)
+    if (page == NULL || page->_Manager == NULL)
     {
         return false;
     }
-    return page->_Manager->Push(name, stash);
+    return PageManager_Push(page->_Manager, name, stash);
 }
 
 /**
@@ -124,11 +124,11 @@ bool page_push(PageBase* page, const char* name, const PageStash_t* stash)
   */
 bool page_pop(PageBase* page)
 {
-    if (page == nullptr || page->_Manager == nullptr)
+    if (page == NULL || page->_Manager == NULL)
     {
         return false;
     }
-    return page->_Manager->Pop();
+    return PageManager_Pop(page->_Manager);
 }
 
 /**
@@ -137,9 +137,9 @@ bool page_pop(PageBase* page)
   */
 bool page_replace(PageBase* page, const char* name, const PageStash_t* stash)
 {
-    if (page == nullptr || page->_Manager == nullptr)
+    if (page == NULL || page->_Manager == NULL)
     {
         return false;
     }
-    return page->_Manager->Replace(name, stash);
+    return PageManager_Replace(page->_Manager, name, stash);
 }

@@ -37,7 +37,8 @@ do{ \
 
 void App_Init()
 {
-    static PageManager manager(AppFactory_CreatePage);
+    static PageManager manager;
+    PageManager_Init(&manager, AppFactory_CreatePage);
 
 #if CONFIG_MONKEY_TEST_ENABLE
     lv_monkey_config_t config;
@@ -84,7 +85,7 @@ void App_Init()
     lv_style_set_height(&rootStyle, LV_VER_RES);
     lv_style_set_bg_opa(&rootStyle, LV_OPA_COVER);
     lv_style_set_bg_color(&rootStyle, lv_color_black());
-    manager.SetRootDefaultStyle(&rootStyle);
+    PageManager_SetRootDefaultStyle(&manager, &rootStyle);
 
     /* Initialize resource pool */
     ResourcePool::Init();
@@ -93,15 +94,15 @@ void App_Init()
     StatusBar_Create(lv_layer_top());
 
     /* Initialize pages */
-    manager.Install("Template",    "Pages/_Template");
-    manager.Install("LiveMap",     "Pages/LiveMap");
-    manager.Install("Dialplate",   "Pages/Dialplate");
-    manager.Install("SystemInfos", "Pages/SystemInfos");
-    manager.Install("Startup",     "Pages/Startup");
+    PageManager_Install(&manager, "Template",    "Pages/_Template");
+    PageManager_Install(&manager, "LiveMap",     "Pages/LiveMap");
+    PageManager_Install(&manager, "Dialplate",   "Pages/Dialplate");
+    PageManager_Install(&manager, "SystemInfos", "Pages/SystemInfos");
+    PageManager_Install(&manager, "Startup",     "Pages/Startup");
 
-    manager.SetGlobalLoadAnimType(PageManager::LOAD_ANIM_OVER_TOP);
+    PageManager_SetGlobalLoadAnimType(&manager, LOAD_ANIM_OVER_TOP, PAGE_ANIM_TIME_DEFAULT, PAGE_ANIM_PATH_DEFAULT);
 
-    manager.Push("Pages/Startup");
+    PageManager_Push(&manager, "Pages/Startup", nullptr);
 }
 
 void App_Uninit()
