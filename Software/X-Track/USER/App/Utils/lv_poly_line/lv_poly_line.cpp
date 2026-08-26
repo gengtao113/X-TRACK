@@ -178,3 +178,52 @@ bool lv_poly_line::get_end_point(lv_point_t* point)
     *point = single_line->points.back();
     return true;
 }
+
+extern "C" {
+
+lv_poly_line* lv_poly_line_create(lv_obj_t* par)
+{
+    return new lv_poly_line(par);
+}
+
+void lv_poly_line_destroy(lv_poly_line* p)
+{
+    delete p;
+}
+
+void lv_poly_line_set_style(lv_poly_line* p, lv_style_t* style)
+{
+    p->set_style(style);
+}
+
+void lv_poly_line_start(lv_poly_line* p)
+{
+    p->start();
+}
+
+void lv_poly_line_append(lv_poly_line* p, lv_coord_t x, lv_coord_t y)
+{
+    p->append(x, y);
+}
+
+void lv_poly_line_append_to_end(lv_poly_line* p, lv_coord_t x, lv_coord_t y)
+{
+    p->append_to_end(x, y);
+}
+
+void lv_poly_line_stop(lv_poly_line* p)
+{
+    p->stop();
+}
+
+void lv_poly_line_reset(lv_poly_line* p)
+{
+    p->reset();
+}
+
+bool lv_poly_line_get_end_point(lv_poly_line* p, lv_point_t* point)
+{
+    return p->get_end_point(point);
+}
+
+}

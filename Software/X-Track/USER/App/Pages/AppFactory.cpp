@@ -28,24 +28,9 @@
 #include "StartUp/StartUp.h"
 
 /**
-  * @brief  按类名匹配并 new 出对应页面
-  * @param  className  标识符，如 Dialplate；#className 变成字符串 "Dialplate"
-  * @note   必须写成宏：new 的类型名在编译期拼出来，C 里就是一张函数表。
-  *         do { ... } while(0) 让宏当一条语句用，避免 if 里少写花括号出错。
-  */
-#define APP_CLASS_MATCH(className)\
-do{\
-    if (strcmp(name, #className) == 0)\
-    {\
-        return (PageBase*)new Page::className;\
-    }\
-}while(0)
-
-/**
   * @brief  按类名创建页面对象
   * @param  name  类名字符串，与 Install 的第一个参数相同，如 "Dialplate"
-  * @note   Template / Startup / Dialplate / SystemInfos 已是 C 静态单例；LiveMap 仍 APP_CLASS_MATCH + new。
-  *         不是应用名 "Pages/Dialplate"。
+  * @note   五页都是 C 静态单例 Xxx_Create()。不是应用名 "Pages/Dialplate"。
   * @retval 新页面的 PageBase*；未登记则 nullptr
   */
 PageBase* AppFactory::CreatePage(const char* name)
@@ -66,7 +51,10 @@ PageBase* AppFactory::CreatePage(const char* name)
     {
         return SystemInfos_Create();
     }
-    APP_CLASS_MATCH(LiveMap);
+    if (strcmp(name, "LiveMap") == 0)
+    {
+        return LiveMap_Create();
+    }
 
     return nullptr;
 }

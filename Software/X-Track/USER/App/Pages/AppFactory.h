@@ -34,7 +34,7 @@ public:
     /**
       * @brief  按类名创建页面对象
       * @param  name  类名字符串，如 "Dialplate" / "Startup"（不是 "Pages/Dialplate"）
-      * @note   实现见 AppFactory.cpp 的 APP_CLASS_MATCH：strcmp 命中则 new Page::Xxx。
+      * @note   实现见 AppFactory.cpp：strcmp 命中则调对应 Xxx_Create() 静态单例。
       *         未登记的名字返回 nullptr，Install 会失败。
       * @retval 新页面的 PageBase*；找不到则 nullptr
       */

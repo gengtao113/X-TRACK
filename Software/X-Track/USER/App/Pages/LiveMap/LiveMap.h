@@ -3,70 +3,33 @@
 
 #include "LiveMapView.h"
 #include "LiveMapModel.h"
+#include "Utils/PageManager/PageBase.h"
 
-namespace Page
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct
 {
+    uint32_t lastMapUpdateTime;
+    uint32_t lastContShowTime;
+    lv_timer_t* timer;
+    LiveMapPoint_t lastTileContOriPoint;
+    bool isTrackAvtive;
+} LiveMapPriv;
 
-class LiveMap
+typedef struct
 {
-public:
-    PageBase base;  /**< 必须是第一项，调度器只认 PageBase* */
+    PageBase base;
+    LiveMapView view;
+    LiveMapModel model;
+    LiveMapPriv run;
+} LiveMapPage;
 
-    LiveMap();
-    ~LiveMap();
+PageBase* LiveMap_Create(void);
 
-    void onCustomAttrConfig();
-    void onViewLoad();
-    void onViewDidLoad();
-    void onViewWillAppear();
-    void onViewDidAppear();
-    void onViewWillDisappear();
-    void onViewDidDisappear();
-    void onViewUnload();
-    void onViewDidUnload();
-
-private:
-    LiveMapView View;
-    LiveMapModel Model;
-
-    struct
-    {
-        uint32_t lastMapUpdateTime;
-        uint32_t lastContShowTime;
-        lv_timer_t* timer;
-        TileConv::Point_t lastTileContOriPoint;
-        bool isTrackAvtive;
-    } priv;
-
-    static uint16_t mapLevelCurrent;
-
-private:
-    typedef  TrackLineFilter::Area_t Area_t;
-
-private:
-    void Update();
-    void UpdateDelay(uint32_t ms);
-    void CheckPosition();
-
-    /* SportInfo */
-    void SportInfoUpdate();
-
-    /* MapTileCont */
-    bool GetIsMapTileContChanged();
-    void onMapTileContRefresh(const Area_t* area, int32_t x, int32_t y);
-    void MapTileContUpdate(int32_t mapX, int32_t mapY, float course);
-    void MapTileContReload();
-    
-    /* TrackLine */
-    void TrackLineReload(const Area_t* area, int32_t x, int32_t y);
-    void TrackLineAppend(int32_t x, int32_t y);
-    void TrackLineAppendToEnd(int32_t x, int32_t y);
-    static void onTrackLineEvent(TrackLineFilter* filter, TrackLineFilter::Event_t* event);
-    
-    void AttachEvent(lv_obj_t* obj);
-    static void onEvent(lv_event_t* event);
-};
-
+#ifdef __cplusplus
 }
+#endif
 
 #endif
