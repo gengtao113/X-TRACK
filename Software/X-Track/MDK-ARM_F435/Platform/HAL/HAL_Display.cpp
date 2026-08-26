@@ -20,7 +20,7 @@ static SCREEN_CLASS screen(
 
 static uint8_t* Disp_DMA_TragetPoint = nullptr;
 static uint8_t* Disp_DMA_CurrentPoint = nullptr;
-static HAL::Display_CallbackFunc_t Disp_Callback = nullptr;
+static Display_CallbackFunc_t Disp_Callback = nullptr;
 
 #if (DISP_USE_FPS_TEST == 1)
 static float Display_GetFPS(SCREEN_CLASS* scr, uint32_t loopNum)
@@ -130,7 +130,7 @@ static void Display_SPI_DMA_Init()
     dma_interrupt_enable(DISP_DMA_CHANNEL, DMA_FDT_INT, TRUE);
 }
 
-void HAL::Display_Init()
+void Display_Init()
 {
     Serial.print("Display: init...");
     screen.begin();
@@ -155,7 +155,7 @@ void HAL::Display_Init()
     Serial.println("success");
 }
 
-void HAL::Display_DumpCrashInfo(const char* info)
+void Display_DumpCrashInfo(const char* info)
 {
 #   define TEXT_HEIGHT_1   8
 #   define TEXT_WIDTH_1    6
@@ -183,12 +183,12 @@ void HAL::Display_DumpCrashInfo(const char* info)
     screen.printf("DFSR  = 0x%08X\r\n", SCB->DFSR);
 }
 
-void HAL::Display_SetAddrWindow(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
+void Display_SetAddrWindow(int16_t x0, int16_t y0, int16_t x1, int16_t y1)
 {
     screen.setAddrWindow(x0, y0, x1, y1);
 }
 
-void HAL::Display_SendPixels(const uint16_t* pixels, uint32_t len)
+void Display_SendPixels(const uint16_t* pixels, uint32_t len)
 {
     digitalWrite_LOW(CONFIG_SCREEN_CS_PIN);
     digitalWrite_HIGH(CONFIG_SCREEN_DC_PIN);
@@ -196,7 +196,7 @@ void HAL::Display_SendPixels(const uint16_t* pixels, uint32_t len)
     Display_SPI_DMA_Send(pixels, len * sizeof(uint16_t));
 }
 
-void HAL::Display_SetSendFinishCallback(Display_CallbackFunc_t func)
+void Display_SetSendFinishCallback(Display_CallbackFunc_t func)
 {
     Disp_Callback = func;
 }

@@ -4,9 +4,9 @@
 
 #include "StackInfo/StackInfo.h"
 
-static void Memory_ShowStackInfo()
+static void Memory_ShowStackInfo(void)
 {
-    Serial.printf(
+    Serial_Printf(
         "Stack: %0.2f%% used (total: 0x%x, free: 0x%x)\r\n",
         StackInfo_GetMaxUtilization() * 100,
         StackInfo_GetTotalSize(),
@@ -18,6 +18,7 @@ static void Memory_ShowStackInfo()
 #if CONFIG_SHOW_HEAP_INFO
 
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 static int Memory_HeapPrint(void* param, char const* format, ...)
@@ -31,20 +32,20 @@ static int Memory_HeapPrint(void* param, char const* format, ...)
 
     va_end(args);
 
-    Serial.print("Heap: ");
-    Serial.println(printf_buff);
+    Serial_Print("Heap: ");
+    Serial_Println(printf_buff);
 
     return ret_status;
 }
 
-static void Memory_ShowHeapInfo()
+static void Memory_ShowHeapInfo(void)
 {
     int size = 0;
     __heapstats((__heapprt)Memory_HeapPrint, &size);
 }
 #endif
 
-void HAL::Memory_DumpInfo()
+void Memory_DumpInfo(void)
 {
 #if CONFIG_SHOW_STACK_INFO
     Memory_ShowStackInfo();

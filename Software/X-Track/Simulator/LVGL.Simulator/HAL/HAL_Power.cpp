@@ -4,7 +4,7 @@
 #  include <windows.h>
 #endif
 
-void HAL::Power_GetInfo(Power_Info_t* info)
+void Power_GetInfo(Power_Info_t* info)
 {
     int usage = 100;
     bool isCharging = false;
@@ -26,7 +26,7 @@ void HAL::Power_GetInfo(Power_Info_t* info)
     info->usage = usage;
 }
 
-void HAL::Power_SetEventCallback(Power_CallbackFunction_t callback)
+void Power_SetEventCallback(Power_CallbackFunction_t callback)
 {
 
 }

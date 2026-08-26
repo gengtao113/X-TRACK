@@ -1,13 +1,13 @@
 #include "HAL.h"
 #include "rtc.h"
 
-void HAL::Clock_Init()
+void Clock_Init(void)
 {
     RTC_Init();
 
     Clock_Info_t info;
     Clock_GetInfo(&info);
-    Serial.printf(
+    Serial_Printf(
         "Clock: %04d-%02d-%02d %s %02d:%02d:%02d\r\n",
         info.year,
         info.month,
@@ -19,7 +19,7 @@ void HAL::Clock_Init()
     );
 }
 
-void HAL::Clock_GetInfo(Clock_Info_t* info)
+void Clock_GetInfo(Clock_Info_t* info)
 {
     RTC_Calendar_TypeDef calendar;
     RTC_GetCalendar(&calendar);
@@ -33,7 +33,7 @@ void HAL::Clock_GetInfo(Clock_Info_t* info)
     info->millisecond = 0;
 }
 
-void HAL::Clock_SetInfo(const Clock_Info_t* info)
+void Clock_SetInfo(const Clock_Info_t* info)
 {
     RTC_SetTime(
         info->year,
@@ -45,8 +45,8 @@ void HAL::Clock_SetInfo(const Clock_Info_t* info)
     );
 }
 
-const char* HAL::Clock_GetWeekString(uint8_t week)
+const char* Clock_GetWeekString(uint8_t week)
 {
-    const char* week_str[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
+    static const char* week_str[] = {"SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"};
     return week < 7 ? week_str[week] : "";
 }

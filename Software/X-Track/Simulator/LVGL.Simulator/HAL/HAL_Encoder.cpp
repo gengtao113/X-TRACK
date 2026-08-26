@@ -1,23 +1,23 @@
 #include "HAL.h"
 
-void HAL::Encoder_Init()
+void Encoder_Init()
 {
 }
 
-void HAL::Encoder_Update()
+void Encoder_Update()
 {
 }
 
-int32_t HAL::Encoder_GetDiff()
+int32_t Encoder_GetDiff()
 {
     return 0;
 }
 
-bool HAL::Encoder_GetIsPush()
+bool Encoder_GetIsPush()
 {
     return false;
 }
 
-void HAL::Encoder_SetEnable(bool en)
+void Encoder_SetEnable(bool en)
 {
 }

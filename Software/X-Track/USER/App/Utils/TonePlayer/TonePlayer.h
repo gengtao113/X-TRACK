@@ -24,17 +24,13 @@
 #define __TONE_PLAYER_H
 
 #include <stdint.h>
+#include "TonePlayer_Types.h"
 
 class TonePlayer
 {
     typedef void(*CallbackFunction_t)(uint32_t, uint16_t);
 public:
-    typedef struct
-    {
-        uint16_t Freq;
-        uint16_t Time;
-        uint16_t Volume;
-    } MusicNode_t;
+    typedef TonePlayer_MusicNode_t MusicNode_t;
 
     enum Speed
     {

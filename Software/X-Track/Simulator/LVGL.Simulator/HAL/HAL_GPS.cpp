@@ -116,14 +116,14 @@ static bool Parser_Init(GPX_Parser* parser, FileInfo_t* info)
     return retval;
 }
 
-bool HAL::GPS_GetInfo(GPS_Info_t* info)
+bool GPS_GetInfo(GPS_Info_t* info)
 {
     Clock_GetInfo(&gpsInfo.clock);
     *info = gpsInfo;
     return true;
 }
 
-void HAL::GPS_Init()
+void GPS_Init()
 {
     gpsInfo.longitude = CONFIG_GPS_LONGITUDE_DEFAULT;
     gpsInfo.latitude = CONFIG_GPS_LATITUDE_DEFAULT;
@@ -163,7 +163,7 @@ static double Clock_GetDiffTime(GPX_Parser::Time_t* time1, GPX_Parser::Time_t* t
     return difftime(t1, t2);
 }
 
-void HAL::GPS_Update()
+void GPS_Update()
 {
     static GPX_Parser::Point_t prePoint;
     static bool isReset = false;
@@ -218,7 +218,7 @@ void HAL::GPS_Update()
     }
 }
 
-double HAL::GPS_GetDistanceOffset(GPS_Info_t* info, double preLong, double preLat)
+double GPS_GetDistanceOffset(GPS_Info_t* info, double preLong, double preLat)
 {
     return distanceBetween(info->latitude, info->longitude, preLat, preLong);
 }

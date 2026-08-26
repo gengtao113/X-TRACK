@@ -2916,29 +2916,40 @@
               <FilePath>..\USER\HAL\HAL.h</FilePath>
             </File>
             <File>
-              <FileName>HAL.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL.cpp</FilePath>
+              <FileName>HAL.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_Audio.cpp</FileName>
+              <FileName>arduino_c.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_Audio.cpp</FilePath>
+              <FilePath>..\USER\HAL\arduino_c.cpp</FilePath>
             </File>
             <File>
-              <FileName>HAL_Clock.cpp</FileName>
+              <FileName>hal_dev.cpp</FileName>
               <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_Clock.cpp</FilePath>
+              <FilePath>..\USER\HAL\hal_dev.cpp</FilePath>
+            </File>
+
+            <File>
+              <FileName>HAL_Audio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_Audio.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_Backlight.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_Backlight.cpp</FilePath>
+              <FileName>HAL_Clock.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_Clock.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_Buzz.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_Buzz.cpp</FilePath>
+              <FileName>HAL_Backlight.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_Backlight.c</FilePath>
+            </File>
+            <File>
+              <FileName>HAL_Buzz.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_Buzz.c</FilePath>
             </File>
             <File>
               <FileName>HAL_Display.cpp</FileName>
@@ -2946,39 +2957,39 @@
               <FilePath>.\Platform\HAL\HAL_Display.cpp</FilePath>
             </File>
             <File>
-              <FileName>HAL_Encoder.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_Encoder.cpp</FilePath>
+              <FileName>HAL_Encoder.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_Encoder.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_FaultHandle.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_FaultHandle.cpp</FilePath>
+              <FileName>HAL_FaultHandle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_FaultHandle.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_GPS.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_GPS.cpp</FilePath>
+              <FileName>HAL_GPS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_GPS.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_I2C_Scan.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_I2C_Scan.cpp</FilePath>
+              <FileName>HAL_I2C_Scan.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_I2C_Scan.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_IMU.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_IMU.cpp</FilePath>
+              <FileName>HAL_IMU.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_IMU.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_MAG.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_MAG.cpp</FilePath>
+              <FileName>HAL_MAG.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_MAG.c</FilePath>
             </File>
             <File>
-              <FileName>HAL_Memory.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_Memory.cpp</FilePath>
+              <FileName>HAL_Memory.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_Memory.c</FilePath>
             </File>
             <File>
               <FileName>HAL_Power.cpp</FileName>
@@ -2986,9 +2997,9 @@
               <FilePath>.\Platform\HAL\HAL_Power.cpp</FilePath>
             </File>
             <File>
-              <FileName>HAL_SD_CARD.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\USER\HAL\HAL_SD_CARD.cpp</FilePath>
+              <FileName>HAL_SD_CARD.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\HAL\HAL_SD_CARD.c</FilePath>
             </File>
             <File>
               <FileName>rt_sys.cpp</FileName>
@@ -3850,9 +3861,9 @@
               <FilePath>..\Libraries\LSM6DSM\LSM6DSM.cpp</FilePath>
             </File>
             <File>
-              <FileName>MillisTaskManager.cpp</FileName>
-              <FileType>8</FileType>
-              <FilePath>..\Libraries\MillisTaskManager\MillisTaskManager.cpp</FilePath>
+              <FileName>MillisTaskManager.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Libraries\MillisTaskManager\MillisTaskManager.c</FilePath>
             </File>
             <File>
               <FileName>TinyGPS++.cpp</FileName>

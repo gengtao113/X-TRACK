@@ -2,16 +2,16 @@
 #include <stdlib.h>
 #include "Common/DataProc/DataProc.h"
 
-static HAL::CommitFunc_t CommitFunc;
+static CommitFunc_t CommitFunc;
 static void* UserData;
 
-void HAL::IMU_SetCommitCallback(CommitFunc_t func, void* userData)
+void IMU_SetCommitCallback(CommitFunc_t func, void* userData)
 {
     CommitFunc = func;
     UserData = userData;
 }
 
-void HAL::IMU_Update()
+void IMU_Update()
 {
     static int16_t steps;
     steps++;

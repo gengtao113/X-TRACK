@@ -2,34 +2,35 @@
 #include "lvgl/lvgl.h"
 
 /**
-  * @brief  ±³¹âÁÁ¶È½¥±ä£¬ÊÜlv_anim¿ØÖÆ
-  * @param  obj:ÎÞÓÃ
-  * @param  brightness:ÁÁ¶ÈÖµ
+  * @brief  èƒŒå…‰äº®åº¦æ¸å˜ï¼Œå—lv_animæŽ§åˆ¶
+  * @param  obj:æ— ç”¨
+  * @param  brightness:äº®åº¦å€¼
   * @retval None
   */
 static void Backlight_AnimCallback(void * obj, int32_t brightness)
 {
-    HAL::Backlight_SetValue(brightness);
+    (void)obj;
+    Backlight_SetValue((int16_t)brightness);
 }
 
 /**
-  * @brief  ±³¹â³õÊ¼»¯
-  * @param  ÎÞ
-  * @retval ÎÞ
+  * @brief  èƒŒå…‰åˆå§‹åŒ–
+  * @param  æ— 
+  * @retval æ— 
   */
-void HAL::Backlight_Init()
+void Backlight_Init(void)
 {
-    /*PWM³õÊ¼»¯£¬1000¼¶£¬20KHzÆµÂÊ*/
+    /*PWMåˆå§‹åŒ–ï¼Œ1000çº§ï¼Œ20KHzé¢‘çŽ‡*/
     PWM_Init(CONFIG_SCREEN_BLK_PIN, 1000, 20000);
     Backlight_SetValue(0);
 }
 
 /**
-  * @brief  ±³¹âÉèÖÃ£¬½¥±äÐ§¹û
-  * @param  target:Ä¿±êÁÁ¶È(0~1000 -> 0~100%)
-  * @retval ÎÞ
+  * @brief  èƒŒå…‰è®¾ç½®ï¼Œæ¸å˜æ•ˆæžœ
+  * @param  target:ç›®æ ‡äº®åº¦(0~1000 -> 0~100%)
+  * @retval æ— 
   */
-void HAL::Backlight_SetGradual(uint16_t target, uint16_t time)
+void Backlight_SetGradual(uint16_t target, uint16_t time)
 {
     lv_anim_t a;
     lv_anim_init(&a);
@@ -42,11 +43,11 @@ void HAL::Backlight_SetGradual(uint16_t target, uint16_t time)
 }
 
 /**
-  * @brief  »ñÈ¡±³¹âÁÁ¶È
-  * @param  ÎÞ
-  * @retval µ±Ç°ÁÁ¶È(0~1000 -> 0~100%)
+  * @brief  èŽ·å–èƒŒå…‰äº®åº¦
+  * @param  æ— 
+  * @retval å½“å‰äº®åº¦(0~1000 -> 0~100%)
   */
-uint16_t HAL::Backlight_GetValue()
+uint16_t Backlight_GetValue(void)
 {
     return Timer_GetCompare(
                PIN_MAP[CONFIG_SCREEN_BLK_PIN].TIMx,
@@ -55,22 +56,22 @@ uint16_t HAL::Backlight_GetValue()
 }
 
 /**
-  * @brief  ÉèÖÃ±³¹âÁÁ¶È
-  * @param  val: ÁÁ¶È(0~1000 -> 0~100%)
-  * @retval ÎÞ
+  * @brief  è®¾ç½®èƒŒå…‰äº®åº¦
+  * @param  val: äº®åº¦(0~1000 -> 0~100%)
+  * @retval æ— 
   */
-void HAL::Backlight_SetValue(int16_t val)
+void Backlight_SetValue(int16_t val)
 {
     CM_VALUE_LIMIT(val, 0, 1000);
     analogWrite(CONFIG_SCREEN_BLK_PIN, val);
 }
 
 /**
-  * @brief  ±³¹âÇ¿ÖÆµãÁÁ
-  * @param  en: ±³¹âÊ¹ÄÜ
-  * @retval ÎÞ
+  * @brief  èƒŒå…‰å¼ºåˆ¶ç‚¹äº®
+  * @param  en: èƒŒå…‰ä½¿èƒ½
+  * @retval æ— 
   */
-void HAL::Backlight_ForceLit(bool en)
+void Backlight_ForceLit(bool en)
 {
     pinMode(CONFIG_SCREEN_BLK_PIN, OUTPUT);
     digitalWrite(CONFIG_SCREEN_BLK_PIN, en);

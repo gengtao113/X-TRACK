@@ -4,11 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef __cplusplus
-namespace HAL
-{
-#endif
-
 /* Clock */
 typedef struct
 {
@@ -94,6 +89,14 @@ typedef struct
 } Power_Info_t;
 
 #ifdef __cplusplus
+namespace HAL
+{
+typedef ::Clock_Info_t Clock_Info_t;
+typedef ::GPS_Info_t GPS_Info_t;
+typedef ::MAG_Info_t MAG_Info_t;
+typedef ::IMU_Info_t IMU_Info_t;
+typedef ::SportStatus_Info_t SportStatus_Info_t;
+typedef ::Power_Info_t Power_Info_t;
 }
 #endif
 

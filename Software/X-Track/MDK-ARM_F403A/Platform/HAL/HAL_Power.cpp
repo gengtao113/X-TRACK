@@ -20,7 +20,7 @@ struct
     bool AutoLowPowerEnable;
     bool ShutdownReq;
     uint16_t ADCValue;
-    HAL::Power_CallbackFunction_t EventCallback;
+    Power_CallbackFunction_t EventCallback;
 } Power;
 
 static void Power_ADC_Init(ADC_Type* ADCx)
@@ -81,7 +81,7 @@ static void Power_ADC_Update()
     }
 }
 
-void HAL::Power_Init()
+void Power_Init()
 {
     memset(&Power, 0, sizeof(Power));
     Power.AutoLowPowerTimeout = 60;
@@ -102,33 +102,33 @@ void HAL::Power_Init()
     Power_SetAutoLowPowerEnable(false);
 }
 
-void HAL::Power_HandleTimeUpdate()
+void Power_HandleTimeUpdate()
 {
     Power.LastHandleTime = millis();
 }
 
-void HAL::Power_SetAutoLowPowerTimeout(uint16_t sec)
+void Power_SetAutoLowPowerTimeout(uint16_t sec)
 {
     Power.AutoLowPowerTimeout = sec;
 }
 
-uint16_t HAL::Power_GetAutoLowPowerTimeout()
+uint16_t Power_GetAutoLowPowerTimeout()
 {
     return Power.AutoLowPowerTimeout;
 }
 
-void HAL::Power_SetAutoLowPowerEnable(bool en)
+void Power_SetAutoLowPowerEnable(bool en)
 {
     Power.AutoLowPowerEnable = en;
     Power_HandleTimeUpdate();
 }
 
-void HAL::Power_Shutdown()
+void Power_Shutdown()
 {
     CM_EXECUTE_ONCE(Power.ShutdownReq = true);
 }
 
-void HAL::Power_Update()
+void Power_Update()
 {
     CM_EXECUTE_INTERVAL(Power_ADC_Update(), 1000);
 
@@ -144,7 +144,7 @@ void HAL::Power_Update()
     }
 }
 
-void HAL::Power_EventMonitor()
+void Power_EventMonitor()
 {
     if(Power.ShutdownReq)
     {
@@ -159,7 +159,7 @@ void HAL::Power_EventMonitor()
     }
 }
 
-void HAL::Power_GetInfo(Power_Info_t* info)
+void Power_GetInfo(Power_Info_t* info)
 {
     int voltage = map(
                       Power.ADCValue,
@@ -184,7 +184,7 @@ void HAL::Power_GetInfo(Power_Info_t* info)
     info->voltage = voltage;
 }
 
-void HAL::Power_SetEventCallback(Power_CallbackFunction_t callback)
+void Power_SetEventCallback(Power_CallbackFunction_t callback)
 {
     Power.EventCallback = callback;
 }

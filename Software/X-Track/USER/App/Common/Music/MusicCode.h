@@ -1,6 +1,8 @@
+#include <stdint.h>
 #include "ToneMap.h"
+#include "../../Utils/TonePlayer/TonePlayer_Types.h"
 
-#define MUSIC_DEF(name) static const TonePlayer::MusicNode_t Music_##name[] =
+#define MUSIC_DEF(name) static const TonePlayer_MusicNode_t Music_##name[] =
 
 /*开机音*/
 MUSIC_DEF(Startup)
@@ -96,7 +98,7 @@ MUSIC_DEF(NoOperationWarning)
 /*列表数据类型定义*/
 typedef struct
 {
-    const TonePlayer::MusicNode_t* mc;
+    const TonePlayer_MusicNode_t* mc;
     uint16_t length;
     const char* name;
 } MusicList_t;
