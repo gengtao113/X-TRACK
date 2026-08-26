@@ -39,15 +39,15 @@ public:
     ~DataCenter();
     bool AddAccount(Account* account);
     bool RemoveAccount(Account* account);
-    bool Remove(Account::AccountVector_t* vec, Account* account);
+    bool Remove(AccountList* list, Account* account);
     Account* SearchAccount(const char* id);
-    Account* Find(Account::AccountVector_t* vec, const char* id);
+    Account* Find(AccountList* list, const char* id);
     size_t GetAccountLen();
 
 private:
 
     /* Account pool */
-    Account::AccountVector_t AccountPool;
+    AccountList AccountPool;
 };
 
 #endif

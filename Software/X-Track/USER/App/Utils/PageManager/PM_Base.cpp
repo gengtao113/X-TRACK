@@ -22,17 +22,19 @@
  */
 #include "PageManager.h"
 #include "PM_Log.h"
-#include <algorithm>
+#include <string.h>
 
 #define PM_EMPTY_PAGE_NAME "EMPTY_PAGE"
 
 /**
   * @brief  Page manager constructor
-  * @param  factory: Pointer to the page factory
+  * @param  create: Page constructor by class name
   * @retval None
   */
-PageManager::PageManager(PageFactory* factory)
-    : _Factory(factory)
+PageManager::PageManager(PageCreateFn create)
+    : _CreatePage(create)
+    , _PagePoolN(0)
+    , _PageStackN(0)
     , _PagePrev(nullptr)
     , _PageCurrent(nullptr)
     , _RootDefaultStyle(nullptr)
@@ -59,11 +61,12 @@ PageManager::~PageManager()
   */
 PageBase* PageManager::FindPageInPool(const char* name)
 {
-    for (auto iter : _PagePool)
+    int i;
+    for (i = 0; i < _PagePoolN; i++)
     {
-        if (strcmp(name, iter->_Name) == 0)
+        if (strcmp(name, _PagePool[i]->_Name) == 0)
         {
-            return iter;
+            return _PagePool[i];
         }
     }
     return nullptr;
@@ -76,19 +79,14 @@ PageBase* PageManager::FindPageInPool(const char* name)
   */
 PageBase* PageManager::FindPageInStack(const char* name)
 {
-    decltype(_PageStack) stk = _PageStack;
-    while (!stk.empty())
+    int i;
+    for (i = _PageStackN - 1; i >= 0; i--)
     {
-        PageBase* base = stk.top();
-
-        if (strcmp(name, base->_Name) == 0)
+        if (strcmp(name, _PageStack[i]->_Name) == 0)
         {
-            return base;
+            return _PageStack[i];
         }
-
-        stk.pop();
     }
-
     return nullptr;
 }
 
@@ -100,7 +98,7 @@ PageBase* PageManager::FindPageInStack(const char* name)
   */
 bool PageManager::Install(const char* className, const char* appName)
 {
-    if (_Factory == nullptr)
+    if (_CreatePage == nullptr)
     {
         PM_LOG_ERROR("Factory was not registered, can't install page");
         return false;
@@ -118,7 +116,7 @@ bool PageManager::Install(const char* className, const char* appName)
         return false;
     }
 
-    PageBase* base = _Factory->CreatePage(className);
+    PageBase* base = _CreatePage(className);
     if (base == nullptr)
     {
         PM_LOG_ERROR("Factory has not %s", className);
@@ -190,10 +188,16 @@ bool PageManager::Register(PageBase* base, const char* name)
         return false;
     }
 
+    if (_PagePoolN >= PAGE_POOL_MAX)
+    {
+        PM_LOG_ERROR("Page pool is full");
+        return false;
+    }
+
     base->_Manager = this;
     base->_Name = name;
 
-    _PagePool.push_back(base);
+    _PagePool[_PagePoolN++] = base;
 
     return true;
 }
@@ -222,18 +226,24 @@ bool PageManager::Unregister(const char* name)
         return false;
     }
 
-    auto iter = std::find(_PagePool.begin(), _PagePool.end(), base);
-
-    if (iter == _PagePool.end())
+    int i;
+    for (i = 0; i < _PagePoolN; i++)
     {
-        PM_LOG_ERROR("Page(%s) was not found in PagePool", name);
-        return false;
+        if (_PagePool[i] == base)
+        {
+            int j;
+            for (j = i; j < _PagePoolN - 1; j++)
+            {
+                _PagePool[j] = _PagePool[j + 1];
+            }
+            _PagePoolN--;
+            PM_LOG_INFO("Unregister OK");
+            return true;
+        }
     }
 
-    _PagePool.erase(iter);
-
-    PM_LOG_INFO("Unregister OK");
-    return true;
+    PM_LOG_ERROR("Page(%s) was not found in PagePool", name);
+    return false;
 }
 
 /**
@@ -243,7 +253,7 @@ bool PageManager::Unregister(const char* name)
   */
 PageBase* PageManager::GetStackTop()
 {
-    return _PageStack.empty() ? nullptr : _PageStack.top();
+    return (_PageStackN <= 0) ? nullptr : _PageStack[_PageStackN - 1];
 }
 
 /**
@@ -253,20 +263,7 @@ PageBase* PageManager::GetStackTop()
   */
 PageBase* PageManager::GetStackTopAfter()
 {
-    PageBase* top = GetStackTop();
-
-    if (top == nullptr)
-    {
-        return nullptr;
-    }
-
-    _PageStack.pop();
-
-    PageBase* topAfter = GetStackTop();
-
-    _PageStack.push(top);
-
-    return topAfter;
+    return (_PageStackN < 2) ? nullptr : _PageStack[_PageStackN - 2];
 }
 
 /**
@@ -304,7 +301,7 @@ void PageManager::SetStackClear(bool keepBottom)
 
         FourceUnload(top);
 
-        _PageStack.pop();
+        _PageStackN--;
     }
     PM_LOG_INFO("Stack clear done");
 }

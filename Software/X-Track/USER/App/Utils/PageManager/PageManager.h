@@ -24,9 +24,15 @@
 #define __PAGE_MANAGER_H
 
 #include "PageBase.h"
-#include "PageFactory.h"
-#include <vector>
-#include <stack>
+
+#ifndef PAGE_POOL_MAX
+#define PAGE_POOL_MAX  8
+#endif
+#ifndef PAGE_STACK_MAX
+#define PAGE_STACK_MAX 8
+#endif
+
+typedef PageBase* (*PageCreateFn)(const char* name);
 
 /**
   * @brief  页面调度器：页面池 + 导航栈 + 生命周期状态机 + 切页动画
@@ -111,9 +117,9 @@ public:
 public:
     /**
       * @brief  构造调度器
-      * @param  factory  按类名 new 页面，本工程是 AppFactory；可为空则不能 Install
+      * @param  create  按类名创建页面，本工程是 AppFactory_CreatePage；可为空则不能 Install
       */
-    PageManager(PageFactory* factory = nullptr);
+    PageManager(PageCreateFn create = nullptr);
 
     /**
       * @brief  析构：清空页面栈
@@ -306,11 +312,13 @@ private:
 
 private:
 
-    PageFactory* _Factory;           /**< 按类名 new 页面，本工程 AppFactory */
+    PageCreateFn _CreatePage;         /**< 按类名创建页面，本工程 AppFactory_CreatePage */
 
-    std::vector<PageBase*> _PagePool; /**< 页面池：已 Install 的对象，C 就是指针数组 */
+    PageBase* _PagePool[PAGE_POOL_MAX];   /**< 页面池：已 Install 的对象 */
+    int _PagePoolN;
 
-    std::stack<PageBase*> _PageStack; /**< 导航栈：栈顶 = 正在显示的页 */
+    PageBase* _PageStack[PAGE_STACK_MAX]; /**< 导航栈：栈顶 = 正在显示的页 */
+    int _PageStackN;
 
     PageBase* _PagePrev;              /**< 上一页（刚切走的那页） */
     PageBase* _PageCurrent;           /**< 当前页（正在进入或已在前台） */

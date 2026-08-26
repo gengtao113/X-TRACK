@@ -23,6 +23,7 @@
 #include "Account.h"
 #include "DataCenter.h"
 #include "DataCenterLog.h"
+#include <string.h>
 
 #define ACCOUNT_DISCARD_READ_DATA   1
 
@@ -42,6 +43,8 @@ Account::Account(
 )
 {
     memset(&priv, 0, sizeof(priv));
+    memset(&publishers, 0, sizeof(publishers));
+    memset(&subscribers, 0, sizeof(subscribers));
 
     ID = id;
     Center = center;
@@ -95,17 +98,27 @@ Account::~Account()
     }
 
     /* Let subscribers unfollow */
-    for(auto iter : subscribers)
     {
-        iter->Unsubscribe(ID);
-        DC_LOG_INFO("sub[%s] unsubscribed pub[%s]", iter->ID, ID);
+        uint16_t n = subscribers.n;
+        Account* tmp[ACCOUNT_LIST_MAX];
+        uint16_t i;
+        memcpy(tmp, subscribers.items, n * sizeof(Account*));
+        for (i = 0; i < n; i++)
+        {
+            tmp[i]->Unsubscribe(ID);
+            DC_LOG_INFO("sub[%s] unsubscribed pub[%s]", tmp[i]->ID, ID);
+        }
     }
 
     /* Ask the publisher to delete this subscriber */
-    for (auto iter : publishers)
     {
-        Center->Remove(&iter->subscribers, this);
-        DC_LOG_INFO("pub[%s] removed sub[%s]", iter->ID, ID);
+        uint16_t i;
+        for (i = 0; i < publishers.n; i++)
+        {
+            Account* iter = publishers.items[i];
+            Center->Remove(&iter->subscribers, this);
+            DC_LOG_INFO("pub[%s] removed sub[%s]", iter->ID, ID);
+        }
     }
 
     /* Let the data center delete the account */
@@ -144,10 +157,15 @@ Account* Account::Subscribe(const char* pubID)
     }
 
     /* Add the publisher to the subscription list */
-    publishers.push_back(pub);
+    if (publishers.n >= ACCOUNT_LIST_MAX || pub->subscribers.n >= ACCOUNT_LIST_MAX)
+    {
+        DC_LOG_ERROR("Account[%s] subscribe list is full", ID);
+        return nullptr;
+    }
+    publishers.items[publishers.n++] = pub;
 
     /* Let the publisher add this subscriber */
-    pub->subscribers.push_back(this);
+    pub->subscribers.items[pub->subscribers.n++] = this;
 
     DC_LOG_INFO("sub[%s] subscribed pub[%s]", ID, pubID);
 
@@ -235,25 +253,28 @@ int Account::Publish()
     param.size = priv.BufferSize;
 
     /* Publish messages to subscribers */
-    for(auto iter : subscribers)
     {
-        Account* sub = iter;
-        EventCallback_t callback = sub->priv.eventCallback;
-
-        DC_LOG_INFO("pub[%s] publish >> data(0x%p)[%d] >> sub[%s]...",
-                    ID, param.data_p, param.size, sub->ID);
-
-        if (callback != nullptr)
+        uint16_t i;
+        for (i = 0; i < subscribers.n; i++)
         {
-            param.recv = sub;
-            int ret = callback(sub, &param);
+            Account* sub = subscribers.items[i];
+            EventCallback_t callback = sub->priv.eventCallback;
 
-            DC_LOG_INFO("publish done: %d", ret);
-            retval = ret;
-        }
-        else
-        {
-            DC_LOG_INFO("sub[%s] not register callback", sub->ID);
+            DC_LOG_INFO("pub[%s] publish >> data(0x%p)[%d] >> sub[%s]...",
+                        ID, param.data_p, param.size, sub->ID);
+
+            if (callback != nullptr)
+            {
+                param.recv = sub;
+                int ret = callback(sub, &param);
+
+                DC_LOG_INFO("publish done: %d", ret);
+                retval = ret;
+            }
+            else
+            {
+                DC_LOG_INFO("sub[%s] not register callback", sub->ID);
+            }
         }
     }
 
@@ -486,7 +507,7 @@ void Account::SetTimerEnable(bool en)
   */
 size_t Account::GetPublishersSize()
 {
-    return publishers.size();
+    return publishers.n;
 }
 
 /**
@@ -495,5 +516,5 @@ size_t Account::GetPublishersSize()
   */
 size_t Account::GetSubscribersSize()
 {
-    return subscribers.size();
+    return subscribers.n;
 }

@@ -24,11 +24,21 @@
 #define __ACCOUNT_H
 
 #include <stdint.h>
-#include <vector>
 #include "PingPongBuffer/PingPongBuffer.h"
 #include "lvgl/lvgl.h"
 
+#ifndef ACCOUNT_LIST_MAX
+#define ACCOUNT_LIST_MAX 32
+#endif
+
 class DataCenter;
+class Account;
+
+typedef struct
+{
+    Account* items[ACCOUNT_LIST_MAX];
+    uint16_t n;
+} AccountList;
 
 class Account
 {
@@ -72,8 +82,6 @@ public:
     /* Event callback function pointer */
     typedef int(*EventCallback_t)(Account* account, EventParam_t* param);
 
-    typedef std::vector<Account*> AccountVector_t;
-
 public:
     Account(
         const char* id,
@@ -102,8 +110,8 @@ public:
     DataCenter* Center;  /* Pointer to the data center */
     void* UserData;
 
-    AccountVector_t publishers;  /* Followed publishers */
-    AccountVector_t subscribers; /* Followed subscribers */
+    AccountList publishers;  /* Followed publishers */
+    AccountList subscribers; /* Followed subscribers */
 
     struct
     {

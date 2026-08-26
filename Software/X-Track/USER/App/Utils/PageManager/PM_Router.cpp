@@ -69,10 +69,16 @@ bool PageManager::Replace(const char* name, const PageStash_t* stash)
     base->priv.IsDisableAutoCache = base->priv.ReqDisableAutoCache;
 
     /* Remove current page */
-    _PageStack.pop();
+    _PageStackN--;
+
+    if (_PageStackN >= PAGE_STACK_MAX)
+    {
+        PM_LOG_ERROR("Page stack is full");
+        return false;
+    }
 
     /* Push into the stack */
-    _PageStack.push(base);
+    _PageStack[_PageStackN++] = base;
 
     PM_LOG_INFO("Page(%s) replace Page(%s) (stash = 0x%p)", name, top->_Name, stash);
 
@@ -113,8 +119,14 @@ bool PageManager::Push(const char* name, const PageStash_t* stash)
     /* Synchronous automatic cache configuration */
     base->priv.IsDisableAutoCache = base->priv.ReqDisableAutoCache;
 
+    if (_PageStackN >= PAGE_STACK_MAX)
+    {
+        PM_LOG_ERROR("Page stack is full");
+        return false;
+    }
+
     /* Push into the stack */
-    _PageStack.push(base);
+    _PageStack[_PageStackN++] = base;
 
     PM_LOG_INFO("Page(%s) push >> [Screen] (stash = 0x%p)", name, stash);
 
@@ -135,7 +147,7 @@ bool PageManager::Pop()
         return false;
     }
      /*Check if the page is the root page */
-    if (_PageStack.size() <= 1)
+    if (_PageStackN <= 1)
     {
         PM_LOG_WARN("Only root page remains, can't pop");
         return false;
@@ -159,7 +171,7 @@ bool PageManager::Pop()
     PM_LOG_INFO("Page(%s) pop << [Screen]", top->_Name);
 
     /* Page popup */
-    _PageStack.pop();
+    _PageStackN--;
 
     /* Get the next page */
     top = GetStackTop();

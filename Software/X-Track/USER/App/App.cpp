@@ -37,8 +37,7 @@ do{ \
 
 void App_Init()
 {
-    static AppFactory factory;
-    static PageManager manager(&factory);
+    static PageManager manager(AppFactory_CreatePage);
 
 #if CONFIG_MONKEY_TEST_ENABLE
     lv_monkey_config_t config;

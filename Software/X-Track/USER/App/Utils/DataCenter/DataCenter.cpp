@@ -23,7 +23,6 @@
 #include "DataCenter.h"
 #include "DataCenterLog.h"
 #include <string.h>
-#include <algorithm>
 
 /* Configure whether to automatically clear all accounts */
 #define DC_USE_AUTO_CLOSE 0
@@ -37,6 +36,7 @@ DataCenter::DataCenter(const char* name)
     : AccountMain(name, this)
 {
     Name = name;
+    memset(&AccountPool, 0, sizeof(AccountPool));
 }
 
 /**
@@ -48,14 +48,12 @@ DataCenter::~DataCenter()
 {
 #if DC_USE_AUTO_CLOSE
     DC_LOG_INFO("DataCenter[%s] closing...", Name);
-    while (!AccountPool.empty())
+    while (AccountPool.n > 0)
     {
-        Account* account = AccountPool.back();
+        Account* account = AccountPool.items[AccountPool.n - 1];
 
         DC_LOG_INFO("Delete: %s", account->ID);
         delete account;
-
-        AccountPool.pop_back();
     }
     DC_LOG_INFO("DataCenter[%s] closed.", Name);
 #endif
@@ -72,18 +70,25 @@ Account* DataCenter::SearchAccount(const char* id)
 }
 
 /**
-  * @brief  Search account in vector
-  * @param  vec: Pointer to vector
+  * @brief  Search account in list
+  * @param  list: Pointer to account list
   * @param  id:  Account ID
   * @retval If the search is successful, return the pointer of the account
   */
-Account* DataCenter::Find(Account::AccountVector_t* vec, const char* id)
+Account* DataCenter::Find(AccountList* list, const char* id)
 {
-    for(auto iter : *vec)
+    uint16_t i;
+
+    if (list == nullptr || id == nullptr)
     {
-        if (strcmp(id, iter->ID) == 0)
+        return nullptr;
+    }
+
+    for (i = 0; i < list->n; i++)
+    {
+        if (strcmp(id, list->items[i]->ID) == 0)
         {
-            return iter;
+            return list->items[i];
         }
     }
     return nullptr;
@@ -107,7 +112,13 @@ bool DataCenter::AddAccount(Account* account)
         return false;
     }
 
-    AccountPool.push_back(account);
+    if (AccountPool.n >= ACCOUNT_LIST_MAX)
+    {
+        DC_LOG_ERROR("Account pool is full");
+        return false;
+    }
+
+    AccountPool.items[AccountPool.n++] = account;
 
     AccountMain.Subscribe(account->ID);
 
@@ -125,24 +136,36 @@ bool DataCenter::RemoveAccount(Account* account)
 }
 
 /**
-  * @brief  Remove account in vector
-  * @param  vec: Pointer to vector
-  * @param  id:  Account ID
+  * @brief  Remove account in list
+  * @param  list: Pointer to account list
+  * @param  account: Pointer to account
   * @retval Return true if the removal is successful
   */
-bool DataCenter::Remove(Account::AccountVector_t* vec, Account* account)
+bool DataCenter::Remove(AccountList* list, Account* account)
 {
-    auto iter = std::find(vec->begin(), vec->end(), account);
+    uint16_t i;
 
-    if (iter == vec->end())
+    if (list == nullptr || account == nullptr)
     {
-        DC_LOG_ERROR("Account[%s] was not found", account->ID);
         return false;
     }
 
-    vec->erase(iter);
+    for (i = 0; i < list->n; i++)
+    {
+        if (list->items[i] == account)
+        {
+            uint16_t j;
+            for (j = i; j < list->n - 1; j++)
+            {
+                list->items[j] = list->items[j + 1];
+            }
+            list->n--;
+            return true;
+        }
+    }
 
-    return true;
+    DC_LOG_ERROR("Account[%s] was not found", account->ID);
+    return false;
 }
 
 /**
@@ -152,5 +175,5 @@ bool DataCenter::Remove(Account::AccountVector_t* vec, Account* account)
   */
 size_t DataCenter::GetAccountLen()
 {
-    return AccountPool.size();
+    return AccountPool.n;
 }

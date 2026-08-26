@@ -85,8 +85,10 @@ void PageManager::onRootDragEvent(lv_event_t* event)
     {
         lv_coord_t cur = animAttr.getter(root);
 
-        lv_coord_t max = std::max(animAttr.pop.exit.start, animAttr.pop.exit.end);
-        lv_coord_t min = std::min(animAttr.pop.exit.start, animAttr.pop.exit.end);
+        lv_coord_t a = animAttr.pop.exit.start;
+        lv_coord_t b = animAttr.pop.exit.end;
+        lv_coord_t max = (a > b) ? a : b;
+        lv_coord_t min = (a < b) ? a : b;
 
         lv_point_t offset;
         lv_indev_get_vect(lv_indev_get_act(), &offset);
@@ -129,7 +131,7 @@ void PageManager::onRootDragEvent(lv_event_t* event)
             PM_LOG_INFO("Root drag y_predict = %d", end);
         }
 
-        if (std::abs(end) > std::abs((int)offset_sum) / 2)
+        if (abs(end) > abs((int)offset_sum) / 2)
         {
             lv_async_call(onRootAsyncLeave, base);
         }
