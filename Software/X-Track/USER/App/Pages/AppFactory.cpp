@@ -44,12 +44,16 @@ do{\
 /**
   * @brief  按类名创建页面对象
   * @param  name  类名字符串，与 Install 的第一个参数相同，如 "Dialplate"
-  * @note   不是应用名 "Pages/Dialplate"。新加一页：include 头文件 + 下面加一行 APP_CLASS_MATCH。
+  * @note   Template 已是 C 静态单例；其余页仍 APP_CLASS_MATCH + new。
+  *         不是应用名 "Pages/Dialplate"。
   * @retval 新页面的 PageBase*；未登记则 nullptr
   */
 PageBase* AppFactory::CreatePage(const char* name)
 {
-    APP_CLASS_MATCH(Template);
+    if (strcmp(name, "Template") == 0)
+    {
+        return Template_Create();
+    }
     APP_CLASS_MATCH(LiveMap);
     APP_CLASS_MATCH(Dialplate);
     APP_CLASS_MATCH(SystemInfos);

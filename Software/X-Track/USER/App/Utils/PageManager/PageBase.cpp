@@ -21,6 +21,7 @@
  * SOFTWARE.
  */
 #include "PageBase.h"
+#include "PageManager.h"
 #include "PM_Log.h"
 #include <string.h>
 
@@ -102,4 +103,43 @@ bool page_stash_pop(PageBase* page, void* ptr, uint32_t size)
     lv_mem_free(page->priv.Stash.ptr);
     page->priv.Stash.ptr = nullptr;
     return true;
+}
+
+/**
+  * @brief  C 页面压栈进入新页
+  * @note   转调 page->_Manager->Push。stash 可为空。
+  */
+bool page_push(PageBase* page, const char* name, const PageStash_t* stash)
+{
+    if (page == nullptr || page->_Manager == nullptr)
+    {
+        return false;
+    }
+    return page->_Manager->Push(name, stash);
+}
+
+/**
+  * @brief  C 页面弹出当前页
+  * @note   转调 page->_Manager->Pop。模板页短按/LEAVE 用这个。
+  */
+bool page_pop(PageBase* page)
+{
+    if (page == nullptr || page->_Manager == nullptr)
+    {
+        return false;
+    }
+    return page->_Manager->Pop();
+}
+
+/**
+  * @brief  C 页面替换当前页（开机页进表盘）
+  * @note   转调 page->_Manager->Replace。stash 可为空。
+  */
+bool page_replace(PageBase* page, const char* name, const PageStash_t* stash)
+{
+    if (page == nullptr || page->_Manager == nullptr)
+    {
+        return false;
+    }
+    return page->_Manager->Replace(name, stash);
 }

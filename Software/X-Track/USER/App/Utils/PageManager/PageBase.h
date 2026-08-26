@@ -57,6 +57,25 @@ extern "C" {
 #define PAGE_ANIM_PATH_DEFAULT lv_anim_path_ease_out /**< 默认切页动画曲线 */
 
 /**
+  * @brief  切页动画类型（给 C 页面用）
+  * @note   数值必须与 PageManager::LoadAnim_t 一致。C++ 页仍可用 PageManager::LOAD_ANIM_*。
+  */
+typedef enum
+{
+    PAGE_LOAD_ANIM_GLOBAL = 0,   /**< 跟全局 SetGlobalLoadAnimType */
+    PAGE_LOAD_ANIM_OVER_LEFT = 1,
+    PAGE_LOAD_ANIM_OVER_RIGHT = 2,
+    PAGE_LOAD_ANIM_OVER_TOP = 3,
+    PAGE_LOAD_ANIM_OVER_BOTTOM = 4, /**< 模板页：从底部弹入 */
+    PAGE_LOAD_ANIM_MOVE_LEFT = 5,
+    PAGE_LOAD_ANIM_MOVE_RIGHT = 6,
+    PAGE_LOAD_ANIM_MOVE_TOP = 7,
+    PAGE_LOAD_ANIM_MOVE_BOTTOM = 8,
+    PAGE_LOAD_ANIM_FADE_ON = 9,
+    PAGE_LOAD_ANIM_NONE = 10
+} PageLoadAnim_t;
+
+/**
   * @brief  页面生命周期状态，由 PageManager::StateUpdate 驱动
   * @note   有缓存时 DID_DISAPPEAR 后回到 WILL_APPEAR，不走 UNLOAD。
   */
@@ -159,6 +178,9 @@ void Page_SetCustomCacheEnable(PageBase* page, bool en);
 void Page_SetCustomAutoCacheEnable(PageBase* page, bool en);
 void Page_SetCustomLoadAnimType(PageBase* page, uint8_t animType, uint16_t time, lv_anim_path_cb_t path);
 bool page_stash_pop(PageBase* page, void* ptr, uint32_t size);
+bool page_push(PageBase* page, const char* name, const PageStash_t* stash);
+bool page_pop(PageBase* page);
+bool page_replace(PageBase* page, const char* name, const PageStash_t* stash);
 
 #ifdef __cplusplus
 } /* extern "C" */

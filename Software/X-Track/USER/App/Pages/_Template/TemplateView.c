@@ -20,48 +20,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#ifndef __TEMPLATE_PRESENTER_H
-#define __TEMPLATE_PRESENTER_H
-
 #include "TemplateView.h"
-#include "TemplateModel.h"
-#include "Utils/PageManager/PageBase.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /**
-  * @brief  Push 时经 stash 传入的参数
-  * @note   on_will_appear 里 page_stash_pop 取出。没有 stash 则用默认白底、1s。
+  * @brief  在页面 root 下创建两个 Label
+  * @note   标题文案在 Presenter on_load 里写成 _Name；
+  *         tick 文案在 Update 里刷新。此处先放空字符串。
   */
-typedef struct
+void TemplateView_Create(TemplateView* view, lv_obj_t* root)
 {
-    uint16_t time;     /**< 刷新周期，毫秒 */
-    lv_color_t color;  /**< 页面背景色 */
-} TemplateParam_t;
+    lv_obj_t* label = lv_label_create(root);
+    lv_obj_align(label, LV_ALIGN_TOP_MID, 0, 20);
+    lv_label_set_text(label, "");
+    view->ui.labelTitle = label;
 
-/**
-  * @brief  新页面脚手架 Presenter（产品路径不会 Push 本页）
-  * @note   复制本目录改类名即可。示范：缓存、切页动画、stash 传参、timer、Pop。
-  *         base 必须是第一项，调度器只认 PageBase*。
-  */
-typedef struct
-{
-    PageBase base;
-    TemplateView view;
-    TemplateModel model;
-    lv_timer_t* timer;  /**< WillAppear 创建，DidDisappear 删除 */
-} TemplatePage;
-
-/**
-  * @brief  创建模板页（静态单例）
-  * @note   工厂 CreatePage("Template") 调这个，不再 new。
-  */
-PageBase* Template_Create(void);
-
-#ifdef __cplusplus
+    label = lv_label_create(root);
+    lv_label_set_text(label, "");
+    lv_obj_center(label);
+    view->ui.labelTick = label;
 }
-#endif
-
-#endif
