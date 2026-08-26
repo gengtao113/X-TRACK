@@ -2,9 +2,12 @@
 #define __DATA_PROC_DEF_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
+#ifdef __cplusplus
 namespace DataProc
 {
+#endif
 
 /* Recorder */
 typedef enum
@@ -141,6 +144,8 @@ typedef struct
     bool isActive;
 } TrackFilter_Info_t;
 
+#ifdef __cplusplus
 }
+#endif
 
 #endif

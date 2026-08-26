@@ -28,8 +28,14 @@
 #define LV_ANIM_TIME_DEFAULT    400
 #define LV_ANIM_EXEC(attr)      (lv_anim_exec_xcb_t)lv_obj_set_##attr
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 void lv_obj_set_opa_scale(lv_obj_t* obj, int16_t opa);
 int16_t lv_obj_get_opa_scale(lv_obj_t* obj);
+#ifdef __cplusplus
+}
+
 void lv_label_set_text_add(lv_obj_t * label, const char * text);
 void lv_obj_add_anim(
     lv_obj_t * obj, lv_anim_t * a,
@@ -62,5 +68,7 @@ do{\
     );\
 }while(0)
 lv_indev_t* lv_get_indev(lv_indev_type_t type);
+
+#endif /* __cplusplus */
 
 #endif

@@ -67,3 +67,13 @@ const void* ResourcePool::GetImage(const char* name)
 {
     return Image_.GetResource(name);
 }
+
+lv_font_t* ResourcePool_GetFont(const char* name)
+{
+    return ResourcePool::GetFont(name);
+}
+
+const void* ResourcePool_GetImage(const char* name)
+{
+    return ResourcePool::GetImage(name);
+}

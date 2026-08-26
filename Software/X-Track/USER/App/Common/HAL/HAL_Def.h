@@ -2,9 +2,12 @@
 #define __HAL_DEF_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
+#ifdef __cplusplus
 namespace HAL
 {
+#endif
 
 /* Clock */
 typedef struct
@@ -90,6 +93,8 @@ typedef struct
     bool isCharging;
 } Power_Info_t;
 
+#ifdef __cplusplus
 }
+#endif
 
 #endif
