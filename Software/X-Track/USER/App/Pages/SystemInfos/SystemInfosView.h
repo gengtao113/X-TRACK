@@ -1,89 +1,34 @@
 #ifndef __SYSTEM_INFOS_VIEW_H
 #define __SYSTEM_INFOS_VIEW_H
 
-#include "../Page.h"
+#include "lvgl/lvgl.h"
 
-namespace Page
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct
 {
+    lv_obj_t* cont;
+    lv_obj_t* icon;
+    lv_obj_t* labelInfo;
+    lv_obj_t* labelData;
+} SystemInfosItem_t;
 
-class SystemInfosView
+typedef struct
 {
-public:
-    void Create(lv_obj_t* root);
-    void Delete();
-
-public:
-    typedef struct
-    {
-        lv_obj_t* cont;
-        lv_obj_t* icon;
-        lv_obj_t* labelInfo;
-        lv_obj_t* labelData;
-    } item_t;
-
     struct
     {
-        item_t sport;
-        item_t gps;
-        item_t mag;
-        item_t imu;
-        item_t rtc;
-        item_t battery;
-        item_t storage;
-        item_t system;
+        SystemInfosItem_t sport;
+        SystemInfosItem_t gps;
+        SystemInfosItem_t mag;
+        SystemInfosItem_t imu;
+        SystemInfosItem_t rtc;
+        SystemInfosItem_t battery;
+        SystemInfosItem_t storage;
+        SystemInfosItem_t system;
     } ui;
 
-public:
-    void SetSport(
-        float trip,
-        const char* time,
-        float maxSpd
-    );
-    void SetGPS(
-        float lat,
-        float lng,
-        float alt,
-        const char* utc,
-        float course,
-        float speed
-    );
-    void SetMAG(
-        float dir,
-        int x,
-        int y,
-        int z
-    );
-    void SetIMU(
-        int step,
-        const char* info
-    );
-    void SetRTC(
-        const char* dateTime
-    );
-    void SetBattery(
-        int usage,
-        float voltage,
-        const char* state
-    );
-    void SetStorage(
-        const char* detect,
-        const char* size,
-        const char* type,
-        const char* version
-    );
-    void SetSystem(
-        const char* firmVer,
-        const char* authorName,
-        const char* lvglVer,
-        const char* bootTime,
-        const char* compilerName,
-        const char* bulidTime
-    );
-
-    void SetScrollToY(lv_obj_t* obj, lv_coord_t y, lv_anim_enable_t en);
-    static void onFocus(lv_group_t* e);
-
-private:
     struct
     {
         lv_style_t icon;
@@ -91,20 +36,23 @@ private:
         lv_style_t info;
         lv_style_t data;
     } style;
+} SystemInfosView;
 
-private:
-    void Group_Init();
-    void Style_Init();
-    void Style_Reset();
-    void Item_Create(
-        item_t* item,
-        lv_obj_t* par,
-        const char* name,
-        const char* img_src,
-        const char* infos
-    );
-};
+void SystemInfosView_Create(SystemInfosView* view, lv_obj_t* root);
+void SystemInfosView_Delete(SystemInfosView* view);
+void SystemInfosView_SetSport(SystemInfosView* view, float trip, const char* time, float maxSpd);
+void SystemInfosView_SetGPS(SystemInfosView* view, float lat, float lng, float alt, const char* utc, float course, float speed);
+void SystemInfosView_SetMAG(SystemInfosView* view, float dir, int x, int y, int z);
+void SystemInfosView_SetIMU(SystemInfosView* view, int step, const char* info);
+void SystemInfosView_SetRTC(SystemInfosView* view, const char* dateTime);
+void SystemInfosView_SetBattery(SystemInfosView* view, int usage, float voltage, const char* state);
+void SystemInfosView_SetStorage(SystemInfosView* view, const char* detect, const char* size, const char* type, const char* version);
+void SystemInfosView_SetSystem(SystemInfosView* view, const char* firmVer, const char* authorName, const char* lvglVer, const char* bootTime, const char* compilerName, const char* bulidTime);
+void SystemInfosView_SetScrollToY(lv_obj_t* obj, lv_coord_t y, lv_anim_enable_t en);
+void SystemInfosView_OnFocus(lv_group_t* g);
 
+#ifdef __cplusplus
 }
+#endif
 
-#endif // !__VIEW_H
+#endif

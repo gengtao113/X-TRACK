@@ -3,40 +3,24 @@
 
 #include "SystemInfosView.h"
 #include "SystemInfosModel.h"
+#include "Utils/PageManager/PageBase.h"
 
-namespace Page
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct
 {
-
-class SystemInfos
-{
-public:
-    PageBase base;  /**< 必须是第一项，调度器只认 PageBase* */
-
-    SystemInfos();
-    ~SystemInfos();
-
-    void onCustomAttrConfig();
-    void onViewLoad();
-    void onViewDidLoad();
-    void onViewWillAppear();
-    void onViewDidAppear();
-    void onViewWillDisappear();
-    void onViewDidDisappear();
-    void onViewUnload();
-    void onViewDidUnload();
-
-private:
-    void Update();
-    void AttachEvent(lv_obj_t* obj);
-    static void onTimerUpdate(lv_timer_t* timer);
-    static void onEvent(lv_event_t* event);
-
-private:
-    SystemInfosView View;
-    SystemInfosModel Model;
+    PageBase base;
+    SystemInfosView view;
+    SystemInfosModel model;
     lv_timer_t* timer;
-};
+} SystemInfosPage;
 
+PageBase* SystemInfos_Create(void);
+
+#ifdef __cplusplus
 }
+#endif
 
 #endif
