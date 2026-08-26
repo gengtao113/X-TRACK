@@ -32,7 +32,7 @@ do{ \
     DataProc::ACT##_Info_t info; \
     DATA_PROC_INIT_STRUCT(info); \
     info.cmd = DataProc::CMD; \
-    Account_Notify(&DataProc::Center()->AccountMain, #ACT, &info, sizeof(info)); \
+    Account_Notify((Account*)DataProc_MainAccount(), #ACT, &info, sizeof(info)); \
 }while(0)
 
 void App_Init()

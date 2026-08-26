@@ -40,3 +40,28 @@ void HAL_Buzz_SetEnable(bool en)
 {
     HAL::Buzz_SetEnable(en);
 }
+
+void HAL_Power_GetInfo(HALC_POWER_INFO* info)
+{
+    HAL::Power_GetInfo(info);
+}
+
+bool HAL_SD_GetReady(void)
+{
+    return HAL::SD_GetReady();
+}
+
+float HAL_SD_GetCardSizeMB(void)
+{
+    return HAL::SD_GetCardSizeMB();
+}
+
+const char* HAL_SD_GetTypeName(void)
+{
+    return HAL::SD_GetTypeName();
+}
+
+void HAL_SD_SetEventCallback(HAL_SD_Callback_t cb)
+{
+    HAL::SD_SetEventCallback(reinterpret_cast<HAL::SD_CallbackFunction_t>(cb));
+}
