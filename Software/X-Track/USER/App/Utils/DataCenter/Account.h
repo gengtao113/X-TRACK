@@ -1,38 +1,22 @@
-/*
- * MIT License
- * Copyright (c) 2021 _VIFEXTech
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 #ifndef __ACCOUNT_H
 #define __ACCOUNT_H
 
 #include <stdint.h>
+#include <stddef.h>
+#include <stdbool.h>
 #include "PingPongBuffer/PingPongBuffer.h"
 #include "lvgl/lvgl.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef ACCOUNT_LIST_MAX
 #define ACCOUNT_LIST_MAX 32
 #endif
 
-class DataCenter;
-class Account;
+typedef struct Account Account;
+typedef struct DataCenter DataCenter;
 
 typedef struct
 {
@@ -40,89 +24,68 @@ typedef struct
     uint16_t n;
 } AccountList;
 
-class Account
+enum
 {
-public:
+    ACCOUNT_EVENT_NONE = 0,
+    ACCOUNT_EVENT_PUB_PUBLISH,
+    ACCOUNT_EVENT_SUB_PULL,
+    ACCOUNT_EVENT_NOTIFY,
+    ACCOUNT_EVENT_TIMER
+};
 
-    /* Event type enumeration */
-    typedef enum
-    {
-        EVENT_NONE,
-        EVENT_PUB_PUBLISH, // Publisher posted information
-        EVENT_SUB_PULL,    // Subscriber data pull request
-        EVENT_NOTIFY,      // Subscribers send notifications to publishers
-        EVENT_TIMER,       // Timed event
-        _EVENT_LAST
-    } EventCode_t;
+enum
+{
+    ACCOUNT_RES_OK                  =  0,
+    ACCOUNT_RES_UNKNOW              = -1,
+    ACCOUNT_RES_SIZE_MISMATCH       = -2,
+    ACCOUNT_RES_UNSUPPORTED_REQUEST = -3,
+    ACCOUNT_RES_NO_CALLBACK         = -4,
+    ACCOUNT_RES_NO_CACHE            = -5,
+    ACCOUNT_RES_NO_COMMITED         = -6,
+    ACCOUNT_RES_NOT_FOUND           = -7,
+    ACCOUNT_RES_PARAM_ERROR         = -8
+};
 
-    /* Error type enumeration */
-    typedef enum
-    {
-        RES_OK                  =  0,
-        RES_UNKNOW              = -1,
-        RES_SIZE_MISMATCH       = -2,
-        RES_UNSUPPORTED_REQUEST = -3,
-        RES_NO_CALLBACK         = -4,
-        RES_NO_CACHE            = -5,
-        RES_NO_COMMITED         = -6,
-        RES_NOT_FOUND           = -7,
-        RES_PARAM_ERROR         = -8
-    } ResCode_t;
+typedef int (*Account_Callback)(Account* a, int event, void* from, void* data, uint32_t size);
 
-    /* Event parameter structure */
-    typedef struct
-    {
-        EventCode_t event; // Event type
-        Account* tran;     // Pointer to sender
-        Account* recv;     // Pointer to receiver
-        void* data_p;      // Pointer to data
-        uint32_t size;     // The length of the data
-    } EventParam_t;
-
-    /* Event callback function pointer */
-    typedef int(*EventCallback_t)(Account* account, EventParam_t* param);
-
-public:
-    Account(
-        const char* id,
-        DataCenter* center,
-        uint32_t bufSize = 0,
-        void* userData = nullptr
-    );
-    ~Account();
-
-    Account* Subscribe(const char* pubID);
-    bool Unsubscribe(const char* pubID);
-    bool Commit(const void* data_p, uint32_t size);
-    int Publish();
-    int Pull(const char* pubID, void* data_p, uint32_t size);
-    int Pull(Account* pub, void* data_p, uint32_t size);
-    int Notify(const char* pubID, const void* data_p, uint32_t size);
-    int Notify(Account* pub, const void* data_p, uint32_t size);
-    void SetEventCallback(EventCallback_t callback);
-    void SetTimerPeriod(uint32_t period);
-    void SetTimerEnable(bool en);
-    size_t GetPublishersSize();
-    size_t GetSubscribersSize();
-
-public:
-    const char* ID;      /* Unique account ID */
-    DataCenter* Center;  /* Pointer to the data center */
+struct Account
+{
+    const char* ID;
+    DataCenter* Center;
     void* UserData;
 
-    AccountList publishers;  /* Followed publishers */
-    AccountList subscribers; /* Followed subscribers */
+    AccountList publishers;
+    AccountList subscribers;
 
     struct
     {
-        EventCallback_t eventCallback;
+        Account_Callback eventCallback;
         lv_timer_t* timer;
         PingPongBuffer_t BufferManager;
         uint32_t BufferSize;
     } priv;
-
-private:
-    static void TimerCallbackHandler(lv_timer_t* task);
 };
+
+void        Account_Init(Account* a, const char* id, DataCenter* center, uint32_t bufSize, void* userData);
+void        Account_Deinit(Account* a);
+Account*    Account_Create(const char* id, void* center, uint32_t buf, void* user);
+void        Account_Destroy(Account* a);
+int         Account_Subscribe(Account* a, const char* name);
+int         Account_Unsubscribe(Account* a, const char* name);
+int         Account_Pull(Account* a, const char* name, void* buf, uint32_t size);
+int         Account_Notify(Account* a, const char* name, const void* buf, uint32_t size);
+bool        Account_Commit(Account* a, const void* data, uint32_t size);
+int         Account_Publish(Account* a);
+void        Account_SetCallback(Account* a, Account_Callback cb);
+void        Account_SetTimerPeriod(Account* a, uint32_t period);
+void        Account_SetTimerEnable(Account* a, bool en);
+const char* Account_GetID(Account* a);
+void*       Account_GetUser(Account* a);
+size_t      Account_GetPublishersSize(Account* a);
+size_t      Account_GetSubscribersSize(Account* a);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

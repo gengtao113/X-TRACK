@@ -80,49 +80,51 @@ static void onPublish(Account* account, HAL::GPS_Info_t* gps)
     }
 }
 
-static int onEvent(Account* account, Account::EventParam_t* param)
+static int onEvent(Account* account, int event, void* from, void* data, uint32_t size)
 {
-    if (param->event == Account::EVENT_PUB_PUBLISH
-            && param->size == sizeof(HAL::GPS_Info_t))
+    (void)from;
+
+    if (event == ACCOUNT_EVENT_PUB_PUBLISH
+            && size == sizeof(HAL::GPS_Info_t))
     {
         if (trackFilter.isActive)
         {
-            onPublish(account, (HAL::GPS_Info_t*)param->data_p);
+            onPublish(account, (HAL::GPS_Info_t*)data);
         }
 
-        return Account::RES_OK;
+        return ACCOUNT_RES_OK;
     }
 
-    if (param->size != sizeof(TrackFilter_Info_t))
+    if (size != sizeof(TrackFilter_Info_t))
     {
-        return Account::RES_SIZE_MISMATCH;
+        return ACCOUNT_RES_SIZE_MISMATCH;
     }
 
-    switch (param->event)
+    switch (event)
     {
-    case Account::EVENT_SUB_PULL:
+    case ACCOUNT_EVENT_SUB_PULL:
     {
-        TrackFilter_Info_t* info = (TrackFilter_Info_t*)param->data_p;
+        TrackFilter_Info_t* info = (TrackFilter_Info_t*)data;
         info->pointCont = trackFilter.pointContainer;
         info->level = (uint8_t)trackFilter.mapConv.GetLevel();
         info->isActive = trackFilter.isStarted;
         break;
     }
-    case Account::EVENT_NOTIFY:
-        onNotify(account, (TrackFilter_Info_t*)param->data_p);
+    case ACCOUNT_EVENT_NOTIFY:
+        onNotify(account, (TrackFilter_Info_t*)data);
         break;
 
     default:
         break;
     }
 
-    return Account::RES_OK;
+    return ACCOUNT_RES_OK;
 }
 
 DATA_PROC_INIT_DEF(TrackFilter)
 {
-    account->Subscribe("GPS");
-    account->SetEventCallback(onEvent);
+    Account_Subscribe(account, "GPS");
+    Account_SetCallback(account, onEvent);
 
     trackFilter.pointContainer = nullptr;
     trackFilter.isActive = false;

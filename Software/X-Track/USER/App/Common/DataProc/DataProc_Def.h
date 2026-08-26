@@ -61,7 +61,7 @@ do{\
     info.value = &data; \
     info.size = sizeof(data); \
     info.type = dataType; \
-    act->Notify("Storage", &info, sizeof(info)); \
+    Account_Notify(act, "Storage", &info, sizeof(info)); \
 }while(0)
 #else
 #define STORAGE_VALUE_REG(act, data, dataType)\

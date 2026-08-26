@@ -52,24 +52,24 @@ static void on_line_event(TrackLineFilter* filter, TrackLineFilter::Event_t* eve
     cxx->line_cb(cxx->line_user, &out);
 }
 
-static int on_account_event(Account* account, Account::EventParam_t* param)
+static int on_account_event(Account* account, int event, void* from, void* data, uint32_t size)
 {
     LiveMapModel* owner;
 
-    if (param->event != Account::EVENT_PUB_PUBLISH)
+    if (event != ACCOUNT_EVENT_PUB_PUBLISH)
     {
-        return Account::RES_UNSUPPORTED_REQUEST;
+        return ACCOUNT_RES_UNSUPPORTED_REQUEST;
     }
 
-    if (strcmp(param->tran->ID, "SportStatus") != 0
-            || param->size != sizeof(HAL::SportStatus_Info_t))
+    if (strcmp(Account_GetID((Account*)from), "SportStatus") != 0
+            || size != sizeof(HAL::SportStatus_Info_t))
     {
-        return Account::RES_PARAM_ERROR;
+        return ACCOUNT_RES_PARAM_ERROR;
     }
 
-    owner = (LiveMapModel*)account->UserData;
-    memcpy(&(owner->sportStatusInfo), param->data_p, param->size);
-    return Account::RES_OK;
+    owner = (LiveMapModel*)Account_GetUser(account);
+    memcpy(&(owner->sportStatusInfo), data, size);
+    return ACCOUNT_RES_OK;
 }
 
 void LiveMapModel_Construct(LiveMapModel* m)
@@ -100,13 +100,13 @@ void LiveMapModel_Destruct(LiveMapModel* m)
 void LiveMapModel_Init(LiveMapModel* m)
 {
     LiveMapModelCxx* cxx = cxx_of(m);
-    cxx->account = new Account("LiveMapModel", DataProc::Center(), 0, m);
-    cxx->account->Subscribe("GPS");
-    cxx->account->Subscribe("SportStatus");
-    cxx->account->Subscribe("TrackFilter");
-    cxx->account->Subscribe("SysConfig");
-    cxx->account->Subscribe("StatusBar");
-    cxx->account->SetEventCallback(on_account_event);
+    cxx->account = Account_Create("LiveMapModel", DataProc::Center(), 0, m);
+    Account_Subscribe(cxx->account, "GPS");
+    Account_Subscribe(cxx->account, "SportStatus");
+    Account_Subscribe(cxx->account, "TrackFilter");
+    Account_Subscribe(cxx->account, "SysConfig");
+    Account_Subscribe(cxx->account, "StatusBar");
+    Account_SetCallback(cxx->account, on_account_event);
 }
 
 void LiveMapModel_Deinit(LiveMapModel* m)
@@ -114,7 +114,7 @@ void LiveMapModel_Deinit(LiveMapModel* m)
     LiveMapModelCxx* cxx = cxx_of(m);
     if (cxx && cxx->account)
     {
-        delete cxx->account;
+        Account_Destroy(cxx->account);
         cxx->account = nullptr;
     }
 }
@@ -268,7 +268,7 @@ void LiveMapModel_GetGPS_Info(LiveMapModel* m, GPS_Info_t* info)
 {
     LiveMapModelCxx* cxx = cxx_of(m);
     memset(info, 0, sizeof(*info));
-    if (cxx->account->Pull("GPS", info, sizeof(*info)) != Account::RES_OK)
+    if (Account_Pull(cxx->account, "GPS", info, sizeof(*info)) != ACCOUNT_RES_OK)
     {
         return;
     }
@@ -276,7 +276,7 @@ void LiveMapModel_GetGPS_Info(LiveMapModel* m, GPS_Info_t* info)
     if (!info->isVaild)
     {
         DataProc::SysConfig_Info_t sysConfig;
-        if (cxx->account->Pull("SysConfig", &sysConfig, sizeof(sysConfig)) == Account::RES_OK)
+        if (Account_Pull(cxx->account, "SysConfig", &sysConfig, sizeof(sysConfig)) == ACCOUNT_RES_OK)
         {
             info->longitude = sysConfig.longitude;
             info->latitude = sysConfig.latitude;
@@ -287,7 +287,7 @@ void LiveMapModel_GetGPS_Info(LiveMapModel* m, GPS_Info_t* info)
 void LiveMapModel_GetArrowTheme(LiveMapModel* m, char* buf, uint32_t size)
 {
     DataProc::SysConfig_Info_t sysConfig;
-    if (cxx_of(m)->account->Pull("SysConfig", &sysConfig, sizeof(sysConfig)) != Account::RES_OK)
+    if (Account_Pull(cxx_of(m)->account, "SysConfig", &sysConfig, sizeof(sysConfig)) != ACCOUNT_RES_OK)
     {
         buf[0] = '\0';
         return;
@@ -299,7 +299,7 @@ void LiveMapModel_GetArrowTheme(LiveMapModel* m, char* buf, uint32_t size)
 bool LiveMapModel_GetTrackFilterActive(LiveMapModel* m)
 {
     DataProc::TrackFilter_Info_t info;
-    if (cxx_of(m)->account->Pull("TrackFilter", &info, sizeof(info)) != Account::RES_OK)
+    if (Account_Pull(cxx_of(m)->account, "TrackFilter", &info, sizeof(info)) != ACCOUNT_RES_OK)
     {
         return false;
     }
@@ -331,7 +331,7 @@ void LiveMapModel_TrackReload(LiveMapModel* m, LiveMap_PointCb cb, void* user)
     int32_t pointX;
     int32_t pointY;
 
-    if (cxx->account->Pull("TrackFilter", &info, sizeof(info)) != Account::RES_OK)
+    if (Account_Pull(cxx->account, "TrackFilter", &info, sizeof(info)) != ACCOUNT_RES_OK)
     {
         return;
     }
@@ -372,5 +372,5 @@ void LiveMapModel_SetStatusBarStyle(LiveMapModel* m, StatusBar_Style_t style)
     DATA_PROC_INIT_STRUCT(info);
     info.cmd = DataProc::STATUS_BAR_CMD_SET_STYLE;
     info.param.style = style;
-    cxx_of(m)->account->Notify("StatusBar", &info, sizeof(info));
+    Account_Notify(cxx_of(m)->account, "StatusBar", &info, sizeof(info));
 }

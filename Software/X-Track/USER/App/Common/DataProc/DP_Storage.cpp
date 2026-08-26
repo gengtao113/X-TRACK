@@ -83,7 +83,7 @@ static bool onLoad(Account* account)
     }
 
     SysConfig_Info_t sysConfig;
-    if (account->Pull("SysConfig", &sysConfig, sizeof(sysConfig)) != Account::RES_OK)
+    if (Account_Pull(account, "SysConfig", &sysConfig, sizeof(sysConfig)) != ACCOUNT_RES_OK)
     {
         LV_LOG_ERROR("Pull SysConfig failed!");
         return false;
@@ -151,37 +151,40 @@ static void onNotify(Account* account, Storage_Info_t* info)
     }
 }
 
-static int onEvent(Account* account, Account::EventParam_t* param)
+static int onEvent(Account* account, int event, void* from, void* data, uint32_t size)
 {
-    if (param->event == Account::EVENT_SUB_PULL)
+    (void)from;
+
+    if (event == ACCOUNT_EVENT_SUB_PULL)
     {
-        if (param->size != sizeof(Storage_Basic_Info_t))
+        Storage_Basic_Info_t* info;
+
+        if (size != sizeof(Storage_Basic_Info_t))
         {
-            return Account::RES_SIZE_MISMATCH;
+            return ACCOUNT_RES_SIZE_MISMATCH;
         }
 
-        Storage_Basic_Info_t* info = (Storage_Basic_Info_t*)param->data_p;
+        info = (Storage_Basic_Info_t*)data;
         info->isDetect = HAL::SD_GetReady();
         info->totalSizeMB = HAL::SD_GetCardSizeMB();
         info->freeSizeMB = 0.0f;
         info->type = HAL::SD_GetTypeName();
-        return Account::RES_OK;
+        return ACCOUNT_RES_OK;
     }
 
-    if (param->event != Account::EVENT_NOTIFY)
+    if (event != ACCOUNT_EVENT_NOTIFY)
     {
-        return Account::RES_UNSUPPORTED_REQUEST;
+        return ACCOUNT_RES_UNSUPPORTED_REQUEST;
     }
 
-    if (param->size != sizeof(Storage_Info_t))
+    if (size != sizeof(Storage_Info_t))
     {
-        return Account::RES_SIZE_MISMATCH;
+        return ACCOUNT_RES_SIZE_MISMATCH;
     }
 
-    Storage_Info_t* info = (Storage_Info_t*)param->data_p;
-    onNotify(account, info);
+    onNotify(account, (Storage_Info_t*)data);
 
-    return Account::RES_OK;
+    return ACCOUNT_RES_OK;
 }
 
 
@@ -192,13 +195,13 @@ static void onSDEvent(bool insert)
         DataProc::Storage_Info_t info;
         DATA_PROC_INIT_STRUCT(info);
         info.cmd = DataProc::STORAGE_CMD_LOAD;
-        DataProc::Center()->AccountMain.Notify("Storage", &info, sizeof(info));
+        Account_Notify(&DataProc::Center()->AccountMain, "Storage", &info, sizeof(info));
     }
 }
 
 DATA_PROC_INIT_DEF(Storage)
 {
-    account->SetEventCallback(onEvent);
-    account->Subscribe("SysConfig");
+    Account_SetCallback(account, onEvent);
+    Account_Subscribe(account, "SysConfig");
     HAL::SD_SetEventCallback(onSDEvent);
 }

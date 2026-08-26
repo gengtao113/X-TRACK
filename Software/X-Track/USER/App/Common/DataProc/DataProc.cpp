@@ -1,11 +1,21 @@
 #include "DataProc.h"
 #include "dataproc_c.h"
-#include "Utils/DataCenter/account_c.h"
 
-static DataCenter center("CENTER");
+static DataCenter center;
+static int center_inited;
+
+static void DataProc_EnsureCenter(void)
+{
+    if (!center_inited)
+    {
+        DataCenter_Init(&center, "CENTER");
+        center_inited = 1;
+    }
+}
 
 DataCenter* DataProc::Center()
 {
+    DataProc_EnsureCenter();
     return &center;
 }
 
@@ -30,6 +40,8 @@ const char* DataProc::MakeTimeString(uint64_t ms, char* buf, uint16_t len)
 
 void DataProc_Init()
 {
+    DataProc_EnsureCenter();
+
 #define DP_DEF(NODE_NAME, BUFFER_SIZE)\
     Account* act##NODE_NAME = Account_Create(#NODE_NAME, &center, BUFFER_SIZE, nullptr);
 #  include "DP_LIST.inc"

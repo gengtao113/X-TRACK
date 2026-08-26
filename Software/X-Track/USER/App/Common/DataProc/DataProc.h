@@ -4,12 +4,7 @@
 #include <string.h>
 #include "../HAL/HAL_Def.h"
 #include "DataProc_Def.h"
-
-#ifdef __cplusplus
 #include "Utils/DataCenter/DataCenter.h"
-#else
-#include "Utils/DataCenter/account_c.h"
-#endif
 
 #ifdef __cplusplus
 #define DATA_PROC_INIT_DEF(name) extern "C" void _DP_##name##_Init(Account* account)

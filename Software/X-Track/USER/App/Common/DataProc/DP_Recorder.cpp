@@ -42,7 +42,7 @@ static int Recorder_GetTimeConv(
 {
     HAL::Clock_Info_t clock;
     int retval = -1;
-    if (recorder->account->Pull("Clock", &clock, sizeof(clock)) == Account::RES_OK)
+    if (Account_Pull(recorder->account, "Clock", &clock, sizeof(clock)) == ACCOUNT_RES_OK)
     {
         retval = snprintf(
             buf,
@@ -173,51 +173,53 @@ static int onNotify(Recorder_t* recorder, Recorder_Info_t* info)
     DATA_PROC_INIT_STRUCT(tfInfo);
     tfInfo.cmd = (TrackFilter_Cmd_t)info->cmd;
 
-    return recorder->account->Notify("TrackFilter", &tfInfo, sizeof(tfInfo));
+    return Account_Notify(recorder->account, "TrackFilter", &tfInfo, sizeof(tfInfo));
 }
 
-static int onEvent(Account* account, Account::EventParam_t* param)
+static int onEvent(Account* account, int event, void* from, void* data, uint32_t size)
 {
-    Account::ResCode_t res = Account::RES_UNKNOW;
-    Recorder_t* recorder = (Recorder_t*)account->UserData;;
+    int res = ACCOUNT_RES_UNKNOW;
+    Recorder_t* recorder = (Recorder_t*)account->UserData;
 
-    switch (param->event)
+    (void)from;
+
+    switch (event)
     {
-    case Account::EVENT_PUB_PUBLISH:
-        if (param->size == sizeof(HAL::GPS_Info_t))
+    case ACCOUNT_EVENT_PUB_PUBLISH:
+        if (size == sizeof(HAL::GPS_Info_t))
         {
             if (recorder->active)
             {
-                Recorder_RecPoint(recorder, (HAL::GPS_Info_t*)param->data_p);
+                Recorder_RecPoint(recorder, (HAL::GPS_Info_t*)data);
             }
-            res = Account::RES_OK;
+            res = ACCOUNT_RES_OK;
         }
         else
         {
-            res = Account::RES_SIZE_MISMATCH;
+            res = ACCOUNT_RES_SIZE_MISMATCH;
         }
         break;
 
-    case Account::EVENT_SUB_PULL:
-        if (param->size == sizeof(Recorder_Info_t))
+    case ACCOUNT_EVENT_SUB_PULL:
+        if (size == sizeof(Recorder_Info_t))
         {
-            memcpy(param->data_p, &(recorder->recInfo), param->size);
+            memcpy(data, &(recorder->recInfo), size);
         }
         else
         {
-            res = Account::RES_SIZE_MISMATCH;
+            res = ACCOUNT_RES_SIZE_MISMATCH;
         }
         break;
 
-    case Account::EVENT_NOTIFY:
-        if (param->size == sizeof(Recorder_Info_t))
+    case ACCOUNT_EVENT_NOTIFY:
+        if (size == sizeof(Recorder_Info_t))
         {
-            onNotify(recorder, (Recorder_Info_t*)param->data_p);
-            res = Account::RES_OK;
+            onNotify(recorder, (Recorder_Info_t*)data);
+            res = ACCOUNT_RES_OK;
         }
         else
         {
-            res = Account::RES_SIZE_MISMATCH;
+            res = ACCOUNT_RES_SIZE_MISMATCH;
         }
         break;
 
@@ -237,8 +239,8 @@ DATA_PROC_INIT_DEF(Recorder)
     recorder.account = account;
     account->UserData = &recorder;
 
-    account->Subscribe("GPS");
-    account->Subscribe("Clock");
-    account->Subscribe("TrackFilter");
-    account->SetEventCallback(onEvent);
+    Account_Subscribe(account, "GPS");
+    Account_Subscribe(account, "Clock");
+    Account_Subscribe(account, "TrackFilter");
+    Account_SetCallback(account, onEvent);
 }

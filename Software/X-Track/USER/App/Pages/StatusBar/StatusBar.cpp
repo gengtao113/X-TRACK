@@ -141,27 +141,27 @@ static void StatusBar_Update(lv_timer_t* timer)
 {
     /* satellite */
     HAL::GPS_Info_t gps;
-    if(actStatusBar->Pull("GPS", &gps, sizeof(gps)) == Account::RES_OK)
+    if(Account_Pull(actStatusBar, "GPS", &gps, sizeof(gps)) == ACCOUNT_RES_OK)
     {
         lv_label_set_text_fmt(ui.satellite.label, "%d", gps.satellites);
     }
 
     DataProc::Storage_Basic_Info_t sdInfo;
-    if(actStatusBar->Pull("Storage", &sdInfo, sizeof(sdInfo)) == Account::RES_OK)
+    if(Account_Pull(actStatusBar, "Storage", &sdInfo, sizeof(sdInfo)) == ACCOUNT_RES_OK)
     {
         sdInfo.isDetect ? lv_obj_clear_state(ui.imgSD, LV_STATE_DISABLED) : lv_obj_add_state(ui.imgSD, LV_STATE_DISABLED);
     }
 
     /* clock */
     HAL::Clock_Info_t clock;
-    if(actStatusBar->Pull("Clock", &clock, sizeof(clock)) == Account::RES_OK)
+    if(Account_Pull(actStatusBar, "Clock", &clock, sizeof(clock)) == ACCOUNT_RES_OK)
     {
         lv_label_set_text_fmt(ui.labelClock, "%02d:%02d", clock.hour, clock.minute);
     }
 
     /* battery */
     HAL::Power_Info_t power;
-    if(actStatusBar->Pull("Power", &power, sizeof(power)) == Account::RES_OK)
+    if(Account_Pull(actStatusBar, "Power", &power, sizeof(power)) == ACCOUNT_RES_OK)
     {
         lv_label_set_text_fmt(ui.battery.label, "%d", power.usage);
     }
@@ -360,19 +360,24 @@ static void StatusBar_Appear(bool en)
     lv_anim_start(&a);
 }
 
-static int onEvent(Account* account, Account::EventParam_t* param)
+static int onEvent(Account* account, int event, void* from, void* data, uint32_t size)
 {
-    if (param->event != Account::EVENT_NOTIFY)
+    DataProc::StatusBar_Info_t* info;
+
+    (void)account;
+    (void)from;
+
+    if (event != ACCOUNT_EVENT_NOTIFY)
     {
-        return Account::RES_UNSUPPORTED_REQUEST;
+        return ACCOUNT_RES_UNSUPPORTED_REQUEST;
     }
 
-    if (param->size != sizeof(DataProc::StatusBar_Info_t))
+    if (size != sizeof(DataProc::StatusBar_Info_t))
     {
-        return Account::RES_SIZE_MISMATCH;
+        return ACCOUNT_RES_SIZE_MISMATCH;
     }
 
-    DataProc::StatusBar_Info_t* info = (DataProc::StatusBar_Info_t*)param->data_p;
+    info = (DataProc::StatusBar_Info_t*)data;
 
     switch(info->cmd)
     {
@@ -386,19 +391,19 @@ static int onEvent(Account* account, Account::EventParam_t* param)
         lv_anim_label_push_text(ui.labelRec, info->param.labelRec.show ? info->param.labelRec.str : " ");
         break;
     default:
-        return Account::RES_PARAM_ERROR;
+        return ACCOUNT_RES_PARAM_ERROR;
     }
 
-    return Account::RES_OK;
+    return ACCOUNT_RES_OK;
 }
 
 DATA_PROC_INIT_DEF(StatusBar)
 {
-    account->Subscribe("GPS");
-    account->Subscribe("Power");
-    account->Subscribe("Clock");
-    account->Subscribe("Storage");
-    account->SetEventCallback(onEvent);
+    Account_Subscribe(account, "GPS");
+    Account_Subscribe(account, "Power");
+    Account_Subscribe(account, "Clock");
+    Account_Subscribe(account, "Storage");
+    Account_SetCallback(account, onEvent);
 
     actStatusBar = account;
 }
